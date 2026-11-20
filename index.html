@@ -199,8 +199,8 @@ async function readContent(){
   try{localStorage.setItem("lh_c",js);localStorage.setItem("lh_cv",m.version)}catch(e){try{localStorage.removeItem("lh_c");localStorage.removeItem("lh_cv")}catch(_){}}
   return {v:m.version,js};
 }
-async function uploadContent(file){
-  const txt=await file.text();let o;try{o=JSON.parse(txt)}catch(e){throw new Error("El archivo no es un contenido válido.")}
+async function uploadText(txt){
+  let o;try{o=JSON.parse(txt)}catch(e){throw new Error("El archivo no es un contenido válido.")}
   if(!o||o.app!=="la-house-servicio-pro"||typeof o.js!=="string"||!o.version)throw new Error("Ese archivo no es el contenido de la app.");
   const n=Math.ceil(o.js.length/CHUNK);
   for(let i=0;i<n;i++)await setDoc(doc(db,"content","p"+i),{t:o.js.slice(i*CHUNK,(i+1)*CHUNK)});
@@ -208,16 +208,32 @@ async function uploadContent(file){
   try{localStorage.removeItem("lh_c");localStorage.removeItem("lh_cv")}catch(e){}
   return o.version;
 }
+async function uploadContent(file){return uploadText(await file.text())}
+async function uploadFromSite(pass){
+  pass=String(pass||"").trim();if(!pass)throw new Error("Escribe la clave de contenido.");
+  let r;try{r=await fetch("contenido.enc?t="+Date.now(),{cache:"no-store"})}catch(e){throw new Error("Sin conexión a internet.")}
+  if(!r.ok)throw new Error("No encontré el archivo contenido.enc en GitHub. Revisa que lo hayas subido.");
+  const o=await r.json();const b=x=>Uint8Array.from(atob(x),c=>c.charCodeAt(0));
+  const km=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveKey"]);
+  const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b(o.s),iterations:o.it,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["decrypt"]);
+  let pt;try{pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b(o.iv)},key,b(o.ct))}catch(e){throw new Error("La clave de contenido no es correcta.")}
+  return uploadText(new TextDecoder().decode(pt));
+}
 function uploadScreen(){
-  show(`<div class="card" style="margin-top:26px"><h2>📦 Carga el contenido</h2><p class="mut" style="margin:8px 0 14px">La app todavía no tiene lecciones. Carga el archivo de contenido que te mandé (termina en <b>.json</b>). Solo se hace una vez; después tus empleados lo reciben solo.</p>
-  <input type="file" id="upF" accept=".json,application/json" style="display:none"><button class="btn gold" id="upB">Elegir archivo de contenido</button><div class="err" id="upE"></div>
+  show(`<div class="card" style="margin-top:26px"><h2>📦 Carga el contenido</h2><p class="mut" style="margin:8px 0 14px">La app todavía no tiene lecciones. Escribe la <b>clave de contenido</b> que te di en el chat y toca cargar. Solo se hace una vez; después tus empleados lo reciben solo.</p>
+  <label>Clave de contenido</label><input id="upK" autocomplete="off" autocapitalize="none" placeholder="Ej: casa-ruta-1234">
+  <button class="btn gold" id="upS">Cargar contenido</button><div class="err" id="upE"></div>
+  <p class="mut" style="font-size:13px;margin-top:14px">¿Tienes el archivo .json? <a href="#" id="upB" style="color:var(--gold)">Elegir archivo</a></p>
+  <input type="file" id="upF" accept=".json,application/json" style="display:none">
   <button class="btn" id="lgOut" style="margin-top:14px;background:var(--card)">Salir</button></div>`);
-  document.getElementById("upB").onclick=()=>document.getElementById("upF").click();
-  document.getElementById("upF").onchange=async ev=>{const f=ev.target.files[0];if(!f)return;const e=document.getElementById("upE");e.style.color="var(--mut)";e.textContent="Cargando…";
-    try{await uploadContent(f);location.reload()}catch(err){e.style.color="";e.textContent=err.message||"No se pudo cargar."}};
+  const e=document.getElementById("upE");
+  const run=async fn=>{e.style.color="var(--mut)";e.textContent="Cargando… puede tardar un minuto.";document.getElementById("upS").disabled=true;
+    try{await fn();location.reload()}catch(err){e.style.color="";e.textContent=err.message||"No se pudo cargar.";document.getElementById("upS").disabled=false}};
+  document.getElementById("upS").onclick=()=>run(()=>uploadFromSite(document.getElementById("upK").value));
+  document.getElementById("upB").onclick=ev=>{ev.preventDefault();document.getElementById("upF").click()};
+  document.getElementById("upF").onchange=ev=>{const f=ev.target.files[0];if(f)run(()=>uploadContent(f))};
   document.getElementById("lgOut").onclick=()=>signOut(auth).then(()=>location.reload());
 }
-
 function makeAdapter(uid,isAdmin,staffName){
   const snapDoc=d=>({id:d.id,data:()=>d.data()});
   const dbApi={
@@ -253,7 +269,7 @@ async function start(user){
     if(!st.name){st.v=2;st.name=isAdmin?"Administrador":(staff&&staff.name||"");st.role=isAdmin?"le":(staff&&staff.role||"");localStorage.setItem(STATE_KEY,JSON.stringify(st))}}catch(e){}
   window.LH={contentVersion:c.v,appUrl:location.origin+location.pathname,isAdmin,
     logout:()=>signOut(auth).then(()=>{try{localStorage.removeItem(STATE_KEY);localStorage.removeItem("lh_uid")}catch(e){}location.reload()}),
-    uploadContent,
+    uploadContent,uploadFromSite,
     listStaff:async()=>{const s=await getDocs(collection(db,"staff"));return s.docs.map(d=>Object.assign({id:d.id},d.data()))},
     createStaff:async({name,role,user:u,pass})=>{
       const email=toEmail(u);const sec=initializeApp(CONFIG,"alta-"+Date.now());const a2=getAuth(sec);
