@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220">
+<defs><filter id="g" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<g fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" filter="url(#g)">
+<!-- copa de coctel -->
+<path d="M58 60 L118 60 L88 100 Z M88 100 L88 140 M70 142 L106 142" stroke="#00f0f5"/><circle cx="110" cy="52" r="8" stroke="#ffe600"/>
+<!-- rayo -->
+<path d="M200 30 L176 92 L200 92 L184 150 L232 74 L206 74 L224 30 Z" stroke="#ffe600"/>
+<!-- nota musical -->
+<path d="M300 130 L300 54 L346 44 L346 118" stroke="#ff1c74"/><ellipse cx="290" cy="132" rx="12" ry="9" stroke="#ff1c74"/><ellipse cx="336" cy="120" rx="12" ry="9" stroke="#ff1c74"/>
+<!-- estrellas y garabatos -->
+<path d="M140 178 l6 12 13 2 -10 9 3 13 -12 -7 -12 7 3 -13 -10 -9 13 -2 Z" stroke="#b84dff"/>
+<path d="M30 190 q20 -24 40 0 t40 0" stroke="#b84dff"/><path d="M250 190 q16 -18 32 0 t32 0 t32 0" stroke="#00f0f5"/>
+<path d="M370 30 l4 8 9 1 -7 6 2 9 -8 -5 -8 5 2 -9 -7 -6 9 -1 Z" stroke="#ffe600"/>
+</g></svg>

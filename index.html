@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>La House - Servicio Pro</title>
-<meta name="theme-color" content="#0b0912">
+<meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,7 +13,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0b0912;--bg2:#141020;--card:#1b1530;--card2:#231b3d;--line:#2f2650;
@@ -21,11 +21,11 @@
   --r:18px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{background:var(--bg);color:var(--tx);font-family:'Sora',system-ui,sans-serif;min-height:100%}
+html,body{background:var(--bg);color:var(--tx);font-family:'Poppins',system-ui,sans-serif;min-height:100%}
 body{background:radial-gradient(1000px 500px at 80% -10%,#3a1450 0%,transparent 60%),radial-gradient(800px 400px at -10% 10%,#0d3550 0%,transparent 55%),var(--bg);background-attachment:fixed}
 button{font-family:inherit;cursor:pointer;border:none;color:inherit}
 .app{max-width:560px;margin:0 auto;padding:18px 16px 110px;min-height:100vh}
-h1,h2,.disp{font-family:'Bebas Neue',sans-serif;letter-spacing:1px;font-weight:400}
+h1,h2,.disp{font-family:'Lilita One',sans-serif;letter-spacing:1px;font-weight:400}
 h1{font-size:44px;line-height:.95}
 h2{font-size:30px;margin:6px 0 12px}
 h3{font-size:16px;font-weight:700;margin-bottom:6px}
@@ -45,14 +45,14 @@ p{line-height:1.55;color:#ddd8ec}
 .bar{height:10px;background:#ffffff12;border-radius:99px;overflow:hidden}
 .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--pink));border-radius:99px;transition:width .5s}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.brand{font-family:'Bebas Neue';font-size:26px;letter-spacing:2px}
+.brand{font-family:'Lilita One';font-size:26px;letter-spacing:2px}
 .brand b{color:var(--pink)}
 .xpchip{background:var(--card2);border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:13px;font-weight:700}
 .hero{position:relative;overflow:hidden}
-.hero .lvl{font-family:'Bebas Neue';font-size:34px}
+.hero .lvl{font-family:'Lilita One';font-size:34px}
 .medal{font-size:46px}
 .stat{text-align:center;padding:12px 6px}
-.stat b{display:block;font-size:22px;font-family:'Bebas Neue';letter-spacing:1px}
+.stat b{display:block;font-size:22px;font-family:'Lilita One';letter-spacing:1px}
 .stat span{font-size:11px;color:var(--mut)}
 .mod{display:flex;gap:14px;align-items:center;cursor:pointer}
 .mod .ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:26px;background:var(--card2);flex:none}
@@ -67,7 +67,7 @@ p{line-height:1.55;color:#ddd8ec}
 .nav button.on .e{filter:none;opacity:1}
 .back{background:none;color:var(--mut);font-size:14px;margin-bottom:10px;padding:4px 0}
 .lesson{min-height:300px;display:flex;flex-direction:column}
-.lesson .num{font-family:'Bebas Neue';font-size:16px;color:var(--cyan);letter-spacing:2px}
+.lesson .num{font-family:'Lilita One';font-size:16px;color:var(--cyan);letter-spacing:2px}
 .lesson ul{margin:10px 0 0 18px}
 .lesson li{margin:6px 0;line-height:1.5;color:#ddd8ec}
 .tip{margin-top:14px;padding:12px 14px;border-radius:12px;background:#22e1ff14;border:1px solid #22e1ff44;font-size:14px}
@@ -84,11 +84,11 @@ p{line-height:1.55;color:#ddd8ec}
 .fb.ok{background:#3ddc8418;border:1px solid #3ddc8455}
 .fb.bad{background:#ff5a5f18;border:1px solid #ff5a5f55}
 .fb.mid{background:#ffc83d14;border:1px solid #ffc83d55}
-.big{font-family:'Bebas Neue';font-size:64px;line-height:1;text-align:center}
+.big{font-family:'Lilita One';font-size:64px;line-height:1;text-align:center}
 .center{text-align:center}
 .lb{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;margin-bottom:8px;background:var(--card);border:1px solid var(--line)}
 .lb.me{border-color:var(--pink);background:#ff3d9a14}
-.lb .pos{font-family:'Bebas Neue';font-size:24px;width:28px;text-align:center}
+.lb .pos{font-family:'Lilita One';font-size:24px;width:28px;text-align:center}
 .lb .av{width:38px;height:38px;border-radius:99px;display:grid;place-items:center;font-weight:700;background:var(--card2)}
 .badge{text-align:center;padding:14px 8px;border-radius:14px;background:var(--card);border:1px solid var(--line)}
 .badge .e{font-size:32px}
@@ -100,8 +100,8 @@ label{font-size:13px;color:var(--mut)}
 .roles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 16px}
 .roles button{padding:14px 8px;border-radius:12px;background:var(--card2);border:1px solid var(--line);font-size:14px}
 .roles button.on{border-color:var(--pink);background:#ff3d9a22}
-.timer{font-family:'Bebas Neue';font-size:40px;color:var(--gold)}
-.ticket{font-family:'Bebas Neue';font-size:22px;color:var(--green)}
+.timer{font-family:'Lilita One';font-size:40px;color:var(--gold)}
+.ticket{font-family:'Lilita One';font-size:22px;color:var(--green)}
 .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-120px);background:var(--card2);border:1px solid var(--pink);padding:12px 18px;border-radius:14px;z-index:50;font-weight:600;transition:transform .35s;max-width:90vw;text-align:center;box-shadow:0 10px 40px #0008}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .conf{position:fixed;top:-20px;font-size:22px;z-index:40;pointer-events:none;animation:fall 1.8s linear forwards}
@@ -131,12 +131,59 @@ label{font-size:13px;color:var(--mut)}
 
 .deep{margin:0 0 16px}.deep:last-child{margin-bottom:0}.deep h4{font-size:16px;margin:0 0 6px;color:var(--cyan)}.deep p{font-size:15px;line-height:1.6;margin:0}
 
+/* Marca La House (estilo de lahousemed.com) */
+:root{--bg:#07041a;--bg2:#120a3a;--card:#160e45;--card2:#22155e;--line:#ffffff2e;--pink:#ff1c74;--cyan:#00f0f5;--gold:#ffe600;--purple:#9b00d9;--blue:#5b6cff;--mut:#c9c3ea}
+html,body{font-family:'Poppins',system-ui,sans-serif}
+body{background:linear-gradient(180deg,#07041acc 0%,#0b0630e6 35%,#07041af2 100%),url(bg-neon.jpg) center top/cover fixed,var(--bg)}
+.card{background:linear-gradient(160deg,#1d1260d9,#0e0835e6);border:1px solid var(--line);box-shadow:0 8px 30px #0006;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+h1,h2{font-family:'Lilita One',sans-serif;font-weight:400;letter-spacing:.5px}
+.btn{background:linear-gradient(90deg,var(--pink),var(--purple));box-shadow:0 6px 24px #ff1c7455;font-weight:800}
+.btn.gold{background:var(--gold);color:#140f00;box-shadow:0 6px 0 #c9a800,0 10px 26px #ffe60033}
+.btn.cy{background:var(--cyan);color:#04161a}
+.bar>i{background:linear-gradient(90deg,var(--cyan),var(--blue),var(--pink))}
+.top{background:#000;margin:-16px -16px 14px;padding:14px 16px 12px;border-bottom:1px solid #ffffff14}
+.top .brand{font-size:0;width:150px;height:38px;background:url(logo-head.png) left center/contain no-repeat}
+.nav{background:#000!important;border-top:1px solid #ffffff1a}
+input,select{background:#0c0730;border-color:#ffffff33}
+#gate{padding-top:0!important}
+#gate .hero{position:relative;margin:0 -18px 0;height:200px;background:url(neon.svg) center/88% no-repeat,radial-gradient(circle at 50% 55%,#3a1b8a 0%,#07041a 70%)}
+#gate .hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0000 30%,#07041a 100%)}
+#gate .tag{text-align:center;font-weight:800;font-size:17px;line-height:1.35;margin:4px 0 2px}
+#gate .tag2{text-align:center;font-family:'Lilita One',sans-serif;font-size:22px;color:var(--gold);text-shadow:2px 2px 0 var(--pink);margin-bottom:8px}
+
+/* Personalización extra: títulos tipo grafiti, neón y cinta */
+.lhw{display:inline-block}
+.lht{font-family:'Lilita One',sans-serif!important;letter-spacing:1px;-webkit-text-stroke:1.2px #000;paint-order:stroke fill;text-shadow:3px 3px 0 #000,0 0 14px #ffffff22}
+.lht .c0{color:var(--pink)}.lht .c1{color:var(--gold)}.lht .c2{color:#b84dff}.lht .c3{color:var(--cyan)}
+.lh-marquee{overflow:hidden;white-space:nowrap;margin:-14px -16px 14px;background:linear-gradient(90deg,var(--pink),var(--purple),#3a2bd6,var(--cyan));padding:7px 0;font-weight:800;font-size:13px;letter-spacing:1px;color:#fff;text-shadow:1px 1px 0 #0008}
+.lh-marquee span{display:inline-block;padding-left:100%;animation:lhm 26s linear infinite}
+@keyframes lhm{to{transform:translateX(-100%)}}
+.card{border-radius:20px}
+.card[data-act]{transition:transform .12s,box-shadow .2s}
+.card[data-act]:active{transform:scale(.98)}
+.card:nth-of-type(4n+1){box-shadow:0 0 0 1px #ff1c7433,0 8px 30px #0006,0 0 22px #ff1c7422}
+.card:nth-of-type(4n+2){box-shadow:0 0 0 1px #00f0f533,0 8px 30px #0006,0 0 22px #00f0f522}
+.card:nth-of-type(4n+3){box-shadow:0 0 0 1px #b84dff44,0 8px 30px #0006,0 0 22px #b84dff22}
+.card:nth-of-type(4n){box-shadow:0 0 0 1px #ffe60033,0 8px 30px #0006,0 0 22px #ffe60018}
+.pill{font-weight:800;border-width:2px;box-shadow:2px 2px 0 #000}
+.nav button{position:relative}
+.nav button.on:after{content:"";position:absolute;left:28%;right:28%;bottom:2px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--pink),var(--cyan));box-shadow:0 0 10px var(--pink)}
+.toast{border:2px solid var(--gold);box-shadow:0 0 24px #ffe60044}
+.opt{border-radius:16px}
+.opt.ok{box-shadow:0 0 18px #3ddc8455}
+#gate .ready{text-align:center;margin:10px 0 0;font-family:'Lilita One',sans-serif;font-size:26px;-webkit-text-stroke:1px #000;paint-order:stroke fill;text-shadow:3px 3px 0 #000}
+.card.lh-neon{border:2px solid transparent;background:linear-gradient(160deg,#120a3a,#07041a) padding-box,linear-gradient(90deg,var(--pink),#3a7bff,var(--purple),var(--pink)) border-box;box-shadow:0 0 16px #ff1c7466,0 0 34px #3a7bff40}
+body:before{content:"";position:fixed;right:-60px;top:120px;width:320px;height:176px;background:url(neon.svg) center/contain no-repeat;opacity:.16;pointer-events:none;z-index:0;transform:rotate(-8deg)}
+.app{position:relative;z-index:1}
+.lh-photo{position:relative;height:150px;border-radius:20px;overflow:hidden;margin:0 0 12px;background:url(fachada.jpg) center 40%/cover;box-shadow:0 8px 26px #0008}
+.lh-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0000 35%,#07041ae6 100%)}
+.lh-photo b{position:absolute;left:14px;right:14px;bottom:10px;z-index:1;font-size:21px}
 .roles button{text-align:left}
 .lock{opacity:.45}
 .inp{margin:4px 0 10px}
 #gate{max-width:440px;margin:0 auto;padding:48px 18px 30px}
 #gate .logo{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:2px;text-align:center;line-height:1}
-#gate .logo span{display:block;font-size:20px;color:var(--gold);letter-spacing:4px}
+#gate .logo span{display:block;font-family:'Lilita One',sans-serif;font-size:34px;color:#fff;letter-spacing:2px;text-shadow:3px 3px 0 var(--pink),-1px -1px 0 #000}
 #gate label{font-size:13px;color:var(--mut)}
 #gate .err{color:var(--red);margin-top:10px;min-height:20px}
 </style>
@@ -168,7 +215,7 @@ const fb=initializeApp(CONFIG);const auth=getAuth(fb);const db=getFirestore(fb);
 const gate=document.getElementById("gate");
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const toEmail=u=>{u=String(u||"").trim().toLowerCase();return u.includes("@")?u:u.replace(/\s+/g,"")+"@"+DOMAIN};
-const show=html=>{gate.style.display="";gate.innerHTML=`<div class="logo">LA HOUSE<span>SERVICIO PRO</span></div>`+html};
+const show=html=>{gate.style.display="";gate.innerHTML=`<div style="background:#000;margin:0 -18px;padding:18px 18px 14px;text-align:center"><img src="logo-head.png" alt="La House" style="height:44px"></div><div class="hero"></div><div class="logo" style="margin-top:6px"><span>SERVICIO PRO</span></div><div class="tag">La app de entrenamiento del equipo.</div><div class="tag2">¡Hoy la fiesta la haces tú!</div>`+html};
 let started=false;
 
 function loginForm(msg){
@@ -286,6 +333,20 @@ async function start(user){
   const s=document.createElement("script");s.text=c.js;document.body.appendChild(s);
 }
 
+
+// Decoración de marca: títulos de colores y cinta con frases
+const LH_COLORS=4;
+function lhColor(el){if(el.dataset.lhd)return;el.dataset.lhd="1";const t=el.textContent;if(!t||t.length>40||el.children.length)return;
+  let i=0;el.innerHTML=t.split(/(\s+)/).map(w=>/^\s+$/.test(w)?w:`<span class="lhw">${[...w].map(ch=>`<span class="c${(i++)%LH_COLORS}">${esc(ch)}</span>`).join("")}</span>`).join("");el.classList.add("lht")}
+function lhDecorate(){const app=document.getElementById("app");if(!app)return;
+  app.querySelectorAll("h1,h2,.lvl").forEach(lhColor);
+  if(!app.querySelector(".lh-marquee")){const top=app.querySelector(".top");if(top){const m=document.createElement("div");m.className="lh-marquee";
+    m.innerHTML="<span>★ HOY LA FIESTA LA HACES TÚ ★ CADA MESA, UNA EXPERIENCIA ★ SONRISA, RITMO Y ACTITUD ★ EL CLIENTE SE VA FELIZ Y VUELVE ★ EQUIPO LA HOUSE ★</span>";top.after(m)}}
+  let v="";try{v=view}catch(e){}
+  const f=app.querySelector(".fade");if(f){const c=f.querySelector(".card");if(c&&!c.classList.contains("lh-neon")&&(v==="home"||v==="me"||v==="rank"))c.classList.add("lh-neon")}
+  if(v==="home"&&!app.querySelector(".lh-photo")){const m=app.querySelector(".lh-marquee");if(m){const ph=document.createElement("div");ph.className="lh-photo";ph.innerHTML='<b class="lht" data-lhd="1">'+[..."¡Hoy la fiesta la haces tú!"].map((ch,i)=>ch===" "?" ":`<span class="c${i%4}">${ch}</span>`).join("")+'</b>';m.after(ph)}}
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.classList.contains("on")||b.getAttribute("aria-current")==="page"))}
+new MutationObserver(()=>lhDecorate()).observe(document.getElementById("app"),{childList:true,subtree:true});
 onAuthStateChanged(auth,u=>{if(u)start(u);else{started=false;loginForm()}});
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 </script>
