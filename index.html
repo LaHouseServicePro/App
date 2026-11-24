@@ -223,7 +223,8 @@ function loginForm(msg){
   <label>Usuario</label><input id="lgU" autocomplete="username" autocapitalize="none" placeholder="Ej: ana.lopez">
   <label>Clave</label><input id="lgP" type="password" autocomplete="current-password">
   <button class="btn gold" id="lgGo">Entrar</button><div class="err" id="lgE">${esc(msg||"")}</div></div>
-  <p class="mut" style="text-align:center;font-size:13px">¿No tienes usuario y clave? Pídeselos a tu líder.</p>`);
+  <div class="card" style="text-align:center"><b>¿Primera vez?</b><p class="mut" style="margin:4px 0 10px">Crea tu cuenta y tu líder te aprueba.</p><button class="btn" id="lgNew">Crear mi cuenta</button></div>`);
+  document.getElementById("lgNew").onclick=()=>signupForm();
   const go=async()=>{const u=document.getElementById("lgU").value,p=document.getElementById("lgP").value,e=document.getElementById("lgE");
     if(!u||!p){e.textContent="Escribe tu usuario y tu clave.";return}
     e.textContent="Entrando…";document.getElementById("lgGo").disabled=true;
@@ -235,6 +236,50 @@ function loginForm(msg){
 function blocked(title,text){show(`<div class="card center" style="margin-top:26px;text-align:center"><div style="font-size:52px">🚫</div><h2 style="margin:8px 0">${esc(title)}</h2><p class="mut">${esc(text)}</p><button class="btn" id="lgOut" style="margin-top:14px">Salir</button></div>`);
   document.getElementById("lgOut").onclick=()=>signOut(auth).then(()=>location.reload())}
 
+
+const ROLE_LIST=[["sc","Asesor de servicio"],["bt","Bartender"],["co","Cocinero(a)"],["cj","Cajero(a)"],["ho","Host"],["cv","Cover"],["le","Líder de turno"]];
+const slugU=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim().replace(/\s+/g,".").replace(/[^a-z0-9.@_-]/g,"");
+let signingUp=false;
+function profileFields(){return `<label>Nombre y apellido</label><input id="rgN" autocomplete="name" placeholder="Ej: Ana López">
+  <label>Cargo</label><select id="rgR">${ROLE_LIST.map(r=>`<option value="${r[0]}">${r[1]}</option>`).join("")}</select>`}
+function signupForm(){
+  show(`<div class="card" style="margin-top:26px"><h2 style="margin-bottom:12px">Crear mi cuenta</h2>${profileFields()}
+  <label>Usuario (con este entras)</label><input id="rgU" autocomplete="username" autocapitalize="none" placeholder="Ej: ana.lopez">
+  <label>Contraseña (mínimo 6 caracteres)</label><input id="rgP" type="password" autocomplete="new-password">
+  <label>Repite la contraseña</label><input id="rgP2" type="password" autocomplete="new-password">
+  <button class="btn gold" id="rgGo">Crear cuenta</button><div class="err" id="rgE"></div></div>
+  <p class="mut" style="text-align:center;font-size:13px"><a href="#" id="rgBack" style="color:var(--gold)">Ya tengo cuenta: entrar</a></p>`);
+  const nm=document.getElementById("rgN"),us=document.getElementById("rgU");let touched=false;
+  us.oninput=()=>{touched=true};nm.oninput=()=>{if(!touched)us.value=slugU(nm.value).replace(/@.*/,"")};
+  document.getElementById("rgBack").onclick=ev=>{ev.preventDefault();loginForm()};
+  document.getElementById("rgGo").onclick=async()=>{const e=document.getElementById("rgE");
+    const name=nm.value.trim(),role=document.getElementById("rgR").value,u=slugU(us.value),p=document.getElementById("rgP").value,p2=document.getElementById("rgP2").value;
+    if(!name||!u){e.textContent="Escribe tu nombre y un usuario.";return}
+    if(p.length<6){e.textContent="La contraseña debe tener mínimo 6 caracteres.";return}
+    if(p!==p2){e.textContent="Las contraseñas no coinciden.";return}
+    e.style.color="var(--mut)";e.textContent="Creando tu cuenta…";document.getElementById("rgGo").disabled=true;signingUp=true;
+    try{const cr=await createUserWithEmailAndPassword(auth,toEmail(u),p);
+      if(!ADMIN_EMAILS.includes(toEmail(u)))await setDoc(doc(db,"staff",cr.user.uid),{name,role,user:u,active:false,pending:true,self:true,created:new Date().toISOString()});
+      signingUp=false;started=false;start(cr.user)}
+    catch(err){signingUp=false;const c=err&&err.code||"";e.style.color="";document.getElementById("rgGo").disabled=false;
+      e.textContent=c.includes("email-already")?"Ese usuario ya existe. Elige otro o entra con él.":c.includes("weak-password")?"La contraseña es muy corta.":c.includes("network")?"Sin conexión a internet.":"No se pudo crear la cuenta. Intenta de nuevo."}};
+}
+function completeForm(user){
+  show(`<div class="card" style="margin-top:26px"><h2 style="margin-bottom:12px">Completa tu registro</h2>${profileFields()}
+  <button class="btn gold" id="rgGo">Enviar</button><div class="err" id="rgE"></div><button class="btn" id="lgOut" style="margin-top:14px;background:var(--card)">Salir</button></div>`);
+  document.getElementById("lgOut").onclick=()=>signOut(auth).then(()=>location.reload());
+  document.getElementById("rgGo").onclick=async()=>{const name=document.getElementById("rgN").value.trim(),e=document.getElementById("rgE");if(!name){e.textContent="Escribe tu nombre.";return}
+    try{await setDoc(doc(db,"staff",user.uid),{name,role:document.getElementById("rgR").value,user:String(user.email||"").split("@")[0],active:false,pending:true,self:true,created:new Date().toISOString()});started=false;start(user)}
+    catch(err){e.textContent="No se pudo enviar. Intenta de nuevo."}};
+}
+function pendingScreen(user,staff){
+  show(`<div class="card" style="margin-top:26px;text-align:center"><div style="font-size:52px">⏳</div><h2 style="margin:8px 0">¡Ya casi!</h2>
+  <p class="mut">Hola <b>${esc(staff.name)}</b>, tu cuenta quedó creada. Falta que tu líder te apruebe. Avísale y, apenas lo haga, la app se abre sola.</p>
+  <p class="mut" style="margin-top:10px;font-size:13px">Tu usuario: <b>${esc(staff.user||"")}</b></p>
+  <button class="btn" id="lgOut" style="margin-top:14px;background:var(--card)">Salir</button></div>`);
+  document.getElementById("lgOut").onclick=()=>signOut(auth).then(()=>location.reload());
+  const off=onSnapshot(doc(db,"staff",user.uid),sn=>{const d=sn.data();if(d&&d.active){off();started=false;start(user)}else if(d&&!d.pending&&!d.active){off();blocked("No tienes acceso","Tu solicitud no fue aprobada. Si crees que es un error, habla con tu líder.")}},()=>{});
+}
 async function readContent(){
   const meta=await getDoc(doc(db,"content","meta"));
   if(!meta.exists())return null;
@@ -301,11 +346,15 @@ function makeAdapter(uid,isAdmin,staffName){
 async function start(user){
   if(started)return;started=true;
   show(`<p class="mut" style="text-align:center;margin-top:40px">Cargando…</p>`);
-  const isAdmin=ADMIN_EMAILS.includes(String(user.email||"").toLowerCase());
+  const isOwner=ADMIN_EMAILS.includes(String(user.email||"").toLowerCase());
+  let isAdmin=isOwner;
   let staff=null;
   try{
-    if(!isAdmin){const s=await getDoc(doc(db,"staff",user.uid));staff=s.exists()?s.data():null;
-      if(!staff||!staff.active){started=false;blocked("No tienes acceso","Tu usuario está desactivado. Si crees que es un error, habla con tu líder.");return}}
+    if(!isOwner){const s=await getDoc(doc(db,"staff",user.uid));staff=s.exists()?s.data():null;
+      if(!staff){started=false;completeForm(user);return}
+      if(!staff.active&&staff.pending){started=false;pendingScreen(user,staff);return}
+      if(!staff.active){started=false;blocked("No tienes acceso","Tu usuario está desactivado. Si crees que es un error, habla con tu líder.");return}
+      isAdmin=staff.admin===true}
   }catch(e){if(!isAdmin){started=false;blocked("Sin conexión","No pudimos verificar tu acceso. Revisa tu internet e intenta de nuevo.");return}}
   let c=null;
   try{c=await readContent()}catch(e){try{const js=localStorage.getItem("lh_c");if(js)c={v:localStorage.getItem("lh_cv"),js}}catch(_){}}
@@ -313,8 +362,10 @@ async function start(user){
   // estado local por usuario (por si varios usan el mismo celular)
   try{if(localStorage.getItem("lh_uid")!==user.uid){localStorage.removeItem(STATE_KEY);localStorage.setItem("lh_uid",user.uid)}
     const raw=localStorage.getItem(STATE_KEY);const st=raw?JSON.parse(raw):{v:2};
-    if(!st.name){st.v=2;st.name=isAdmin?"Administrador":(staff&&staff.name||"");st.role=isAdmin?"le":(staff&&staff.role||"");localStorage.setItem(STATE_KEY,JSON.stringify(st))}}catch(e){}
-  window.LH={contentVersion:c.v,appUrl:location.origin+location.pathname,isAdmin,
+    if(!st.name){st.v=2;st.name=isOwner?"Administrador":(staff&&staff.name||"");st.role=isOwner?"le":(staff&&staff.role||"");localStorage.setItem(STATE_KEY,JSON.stringify(st))}}catch(e){}
+  window.LH={contentVersion:c.v,appUrl:location.origin+location.pathname,isAdmin,isOwner,
+    setAdmin:async(id,on)=>{const r=doc(db,"staff",id);const x=await getDoc(r);await setDoc(r,Object.assign({},x.data(),{admin:on}))},
+    reject:async id=>{const r=doc(db,"staff",id);const x=await getDoc(r);await setDoc(r,Object.assign({},x.data(),{active:false,pending:false}))},
     logout:()=>signOut(auth).then(()=>{try{localStorage.removeItem(STATE_KEY);localStorage.removeItem("lh_uid")}catch(e){}location.reload()}),
     uploadContent,uploadFromSite,
     listStaff:async()=>{const s=await getDocs(collection(db,"staff"));return s.docs.map(d=>Object.assign({id:d.id},d.data()))},
@@ -325,7 +376,7 @@ async function start(user){
         await signOut(a2)}
       catch(e){const c=e&&e.code||"";throw new Error(c.includes("email-already")?"Ese usuario ya existe. Usa otro.":c.includes("weak-password")?"La clave es muy corta (mínimo 6 caracteres).":"No se pudo crear: "+(e.message||c))}
       finally{try{await deleteApp(sec)}catch(_){}}},
-    setActive:async(id,on)=>{const r=doc(db,"staff",id);const s=await getDoc(r);await setDoc(r,Object.assign({},s.data(),{active:on}));
+    setActive:async(id,on)=>{const r=doc(db,"staff",id);const s=await getDoc(r);await setDoc(r,Object.assign({},s.data(),{active:on,pending:false}));
       await setDoc(doc(db,"team",id),{inactive:!on},{merge:true})}
   };
   window.claude=makeAdapter(user.uid,isAdmin,staff&&staff.name);
@@ -347,7 +398,7 @@ function lhDecorate(){const app=document.getElementById("app");if(!app)return;
   if(v==="home"&&!app.querySelector(".lh-photo")){const m=app.querySelector(".lh-marquee");if(m){const ph=document.createElement("div");ph.className="lh-photo";ph.innerHTML='<b class="lht" data-lhd="1">'+[..."¡Hoy la fiesta la haces tú!"].map((ch,i)=>ch===" "?" ":`<span class="c${i%4}">${ch}</span>`).join("")+'</b>';m.after(ph)}}
   document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.classList.contains("on")||b.getAttribute("aria-current")==="page"))}
 new MutationObserver(()=>lhDecorate()).observe(document.getElementById("app"),{childList:true,subtree:true});
-onAuthStateChanged(auth,u=>{if(u)start(u);else{started=false;loginForm()}});
+onAuthStateChanged(auth,u=>{if(signingUp)return;if(u)start(u);else{started=false;loginForm()}});
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 </script>
 </body>
