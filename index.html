@@ -203,7 +203,7 @@ body:before{content:"";position:fixed;right:-60px;top:120px;width:320px;height:1
 <script type="module">
 import {initializeApp,deleteApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,getDocs,onSnapshot} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,getDocs,onSnapshot,increment} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const CONFIG={"apiKey": "AIzaSyBYALdajSTvkyBiKIQobsQyNLhapFUYINo", "authDomain": "la-house-service-pro.firebaseapp.com", "projectId": "la-house-service-pro", "storageBucket": "la-house-service-pro.firebasestorage.app", "messagingSenderId": "49435128726", "appId": "1:49435128726:web:0978e5ca2fa46a5ee7a3b7"};
 const ADMIN_EMAILS=["machado.rarm@gmail.com"];
@@ -380,10 +380,33 @@ async function start(user){
       await setDoc(doc(db,"team",id),{inactive:!on},{merge:true})}
   };
   window.claude=makeAdapter(user.uid,isAdmin,staff&&staff.name);
+  if(!isOwner&&staff){try{setDoc(doc(db,"servicepro_visitas",user.uid),{name:staff.name||"",role:staff.role||"",last:new Date().toISOString(),n:increment(1)},{merge:true}).catch(()=>{})}catch(_){}}
+  if(isAdmin){try{lhVisitasBtn()}catch(_){}}
   gate.style.display="none";gate.innerHTML="";document.getElementById("nav").style.display="";
   const s=document.createElement("script");s.text=c.js;document.body.appendChild(s);
 }
 
+
+// Entradas del equipo (solo administradores)
+function lhVisitasBtn(){if(document.getElementById("lhvb"))return;
+  const b=document.createElement("button");b.id="lhvb";b.textContent="Entradas";
+  b.style.cssText="position:fixed;top:10px;right:10px;z-index:9998;background:#8A1AC9;color:#fff;border:0;border-radius:999px;padding:8px 14px;font:700 13px system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.4);cursor:pointer";
+  b.onclick=lhVisitas;document.body.appendChild(b)}
+async function lhVisitas(){
+  const o=document.createElement("div");o.style.cssText="position:fixed;inset:0;z-index:9999;background:#0B0B0B;color:#f5f5f5;overflow-y:auto;font-family:system-ui,sans-serif";
+  o.innerHTML='<div style="max-width:640px;margin:auto;padding:18px 16px 60px"><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0;font-size:22px">Entradas a Servicio Pro</h2><button id="lhvx" style="background:#1d1d1d;border:1px solid #333;color:#fff;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer">×</button></div><p style="color:#a8a8a8">Cargando…</p></div>';
+  document.body.appendChild(o);o.querySelector("#lhvx").onclick=()=>o.remove();
+  const box=o.firstChild;let staff=[],vis={},ok=true;
+  try{const s=await getDocs(collection(db,"staff"));staff=s.docs.map(d=>Object.assign({id:d.id},d.data())).filter(x=>x.name&&x.active)}catch(e){}
+  try{const v=await getDocs(collection(db,"servicepro_visitas"));v.docs.forEach(d=>vis[d.id]=d.data())}catch(e){ok=false}
+  const when=iso=>{const d=new Date(iso),n=new Date();const hm=d.toLocaleTimeString("es-CO",{hour:"numeric",minute:"2-digit"});
+    const day=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate());const dd=Math.round((day(n)-day(d))/864e5);
+    return dd===0?"hoy "+hm:dd===1?"ayer "+hm:dd<7?"hace "+dd+" días":d.toLocaleDateString("es-CO",{day:"numeric",month:"short"})};
+  staff.sort((a,b)=>String((vis[b.id]||{}).last||"").localeCompare(String((vis[a.id]||{}).last||"")));
+  const row=s=>{const v=vis[s.id];return `<div style="background:#161616;border:1px solid #2a2a2a;border-radius:12px;padding:12px;margin-bottom:10px"><b>${esc(s.name)}</b><span style="color:#a8a8a8"> · ${esc(s.role||"")}</span>
+    <div style="margin-top:4px;font-size:14px;color:${v&&v.last?"#73F7FB":"#FF7EA6"}">${v&&v.last?`Última vez: <b>${when(v.last)}</b> · entró ${v.n||1} ${(v.n||1)===1?"vez":"veces"}`:"Nunca ha entrado (desde que se activó el registro)"}</div></div>`};
+  box.innerHTML=box.innerHTML.replace('<p style="color:#a8a8a8">Cargando…</p>',(ok?'':'<p style="color:#FF7EA6">No pude leer las entradas. Falta activar la regla de visitas en Firebase.</p>')+`<p style="color:#a8a8a8">${staff.length} personas activas</p>`+staff.map(row).join(""));
+  o.querySelector("#lhvx").onclick=()=>o.remove()}
 
 // Decoración de marca: títulos de colores y cinta con frases
 const LH_COLORS=4;
