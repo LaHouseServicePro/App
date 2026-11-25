@@ -202,14 +202,14 @@ function render(){
 function progHTML(){
   const L=STAFF.filter(s=>!isReq(s)).map(s=>({s,p:PROGS[s.id]})).sort((a,b)=>((b.p&&b.p.done)||0)-((a.p&&a.p.done)||0)||String((b.p&&b.p.last)||"").localeCompare(String((a.p&&a.p.last)||""))||String(a.s.name).localeCompare(String(b.s.name)));
   if(!L.length)return `<p class="mut">Todavía no hay equipo.</p>`;
-  const tema=k=>k.startsWith("coc")?"🍹":k.startsWith("food")?"🍽️":"🥃";
+  const tema=k=>/(^|-)coc-/.test(k)?"🍹":/(^|-)food-/.test(k)?"🍽️":"🥃";
   return `<p class="mut sm" style="margin-bottom:8px">Se actualiza solo mientras estudian. Toca una persona para ver sus módulos.</p>`+L.map(({s,p})=>{
     const tot=(p&&p.total)||26,done=(p&&p.done)||0,pc=Math.round(done/tot*100);const mods=(p&&p.mods)||{};const ks=Object.keys(mods);
     const ex=ks.filter(k=>k.endsWith("-examen")&&mods[k].done).length;
     const avg=ks.length?Math.round(ks.reduce((a,k)=>a+(mods[k].best||0),0)/ks.length):0;
     const weak=ks.filter(k=>!mods[k].done&&mods[k].tries).sort((a,b)=>(mods[a].best||0)-(mods[b].best||0))[0];
     const open=OPENP===s.id;
-    return `<div class="card" style="padding:12px 14px;cursor:pointer" data-pp="${esc(s.id)}"><div class="h"><div><b>${esc(s.name)}</b><div class="mut sm">${p&&p.last?"Último estudio: "+fmtWhen(p.last):"No ha empezado"}</div></div><div style="text-align:right"><b style="color:${pc>=100?"#5fe39a":"var(--yel)"}">${done}/${tot}</b><div class="mut sm">${ex?ex+" examen"+(ex>1?"es":"")+" 🏆":""}</div></div></div>
+    return `<div class="card" style="padding:12px 14px;cursor:pointer" data-pp="${esc(s.id)}"><div class="h"><div><b>${esc(s.name)}</b><div class="mut sm">${p&&p.sede?"📍 "+(p.sede==="barrio"?"El Barrio":"Provenza")+" · ":""}${p&&p.last?"Último estudio: "+fmtWhen(p.last):"No ha empezado"}</div></div><div style="text-align:right"><b style="color:${pc>=100?"#5fe39a":"var(--yel)"}">${done}/${tot}</b><div class="mut sm">${ex?ex+" examen"+(ex>1?"es":"")+" 🏆":""}</div></div></div>
     <div style="height:8px;background:#222;border-radius:99px;margin-top:8px;overflow:hidden"><i style="display:block;height:100%;width:${pc}%;background:linear-gradient(90deg,var(--pink),var(--yel))"></i></div>
     ${ks.length?`<div class="mut sm" style="margin-top:6px">Promedio ${avg}%${weak?` · Le cuesta: <b style="color:#FF7EA6">${esc((p.mn||{})[weak]||weak)}</b>`:""}</div>`:""}
     ${open&&ks.length?`<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">${ks.sort().map(k=>{const m=mods[k];return `<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;font-size:14px"><span>${tema(k)} ${esc((p.mn||{})[k]||k)}</span><span style="white-space:nowrap;color:${m.done?"#5fe39a":m.tries?"var(--yel)":"var(--mute)"}">${m.done?"✓ ":""}${m.tries?m.best+"% · "+m.tries+" "+(m.tries>1?"intentos":"intento"):"Estudiando"}</span></div>`}).join("")}</div>`:""}

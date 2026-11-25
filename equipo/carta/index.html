@@ -77,6 +77,7 @@ td .nt{display:block;color:var(--mute);font-size:12.5px;margin-top:2px;font-weig
 .fb{border-radius:14px;padding:12px 14px;margin-top:12px}.fb.g{background:#0f2a1a}.fb.b{background:#2a0f18}.fb p{color:#ddd;margin-top:4px;line-height:1.45}
 .res{text-align:center;margin-top:30px}.res .big{font-size:22px;font-weight:800;margin:8px 0}
 .top.mini .fl{display:none}
+.sedeb{margin-top:14px;color:var(--mute);font-size:14px;display:flex;align-items:center;gap:8px}.sedeb b{color:#fff}.sedeb button{margin-left:auto;border:1px solid var(--line);background:#1b1b1b;border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;cursor:pointer}
 .sell{background:linear-gradient(135deg,#2a1d00,#1d1400);border:1px solid #6b5400;border-radius:14px;padding:12px 14px;margin-top:16px}.sell b{color:var(--yel)}.sell p{margin-top:4px!important;color:#f3e9b0!important}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.chips span{background:#1f2a2b;color:var(--cy);border-radius:999px;padding:5px 10px;font-size:13px;font-weight:700}
 
@@ -105,18 +106,26 @@ const uniq=a=>[...new Set(a)];
 const slugM=s=>norm(s).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 
 /* --- armar módulos --- */
-const LICI=[];DATA.lic.forEach(c=>c.items.forEach(x=>LICI.push(Object.assign({},x,{id:"l-"+slugM(x.n),cat:c.cat,info:c.info}))));
-const POOL={coc:DATA.coc,food:DATA.food,lic:LICI};
-const MODS=[];
-TEMAS.forEach(([t])=>{
-  const items=POOL[t];const cats=uniq(items.map(x=>x.cat));
-  cats.forEach(c=>{const L=items.filter(x=>x.cat===c);
-    const parts=L.length>12?Math.ceil(L.length/8):1;const per=Math.ceil(L.length/parts);
-    for(let p=0;p<parts;p++){let sl=L.slice(p*per,(p+1)*per);
-      if(t==="lic"&&p===0){const cc=DATA.lic.find(z=>z.cat===c);if(cc)sl=[{isCat:true,c:cc,id:"cat-"+slugM(c),n:c,sedes:["provenza","barrio"]}].concat(sl)}
-      MODS.push({id:t+"-"+slugM(c)+(parts>1?"-"+(p+1):""),t,name:c+(parts>1?" "+(p+1):""),items:sl,info:""})}});
-});
-const EXAMS=TEMAS.map(([t,n])=>({id:t+"-examen",t,name:"Examen final · "+n.split(" ").slice(1).join(" "),exam:true,items:POOL[t]}));
+const LICA=[];DATA.lic.forEach(c=>c.items.forEach(x=>LICA.push(Object.assign({},x,{id:"l-"+slugM(x.n),cat:c.cat,info:c.info}))));
+const SK={provenza:"prov",barrio:"barr"};
+let SEDEL=(()=>{try{return localStorage.getItem("lh_sede")||""}catch(e){return ""}})();
+let LICI=[],POOL={},MODS=[],EXAMS=[];
+function buildMods(){
+  const sd=SEDEL||"provenza",pre=SK[sd]+"-",ok=x=>x.sedes.includes(sd);
+  LICI=LICA.filter(ok);POOL={coc:DATA.coc.filter(ok),food:DATA.food.filter(ok),lic:LICI};MODS=[];
+  TEMAS.forEach(([t])=>{
+    const items=POOL[t];const cats=uniq(items.map(x=>x.cat));
+    cats.forEach(c=>{const L=items.filter(x=>x.cat===c);
+      const parts=L.length>12?Math.ceil(L.length/8):1;const per=Math.ceil(L.length/parts);
+      for(let p=0;p<parts;p++){let sl=L.slice(p*per,(p+1)*per);
+        if(t==="lic"&&p===0){const cc=DATA.lic.find(z=>z.cat===c);if(cc)sl=[{isCat:true,c:cc,id:"cat-"+slugM(c),n:c,sedes:["provenza","barrio"]}].concat(sl)}
+        MODS.push({id:pre+t+"-"+slugM(c)+(parts>1?"-"+(p+1):""),t,name:c+(parts>1?" "+(p+1):""),items:sl,info:""})}});
+  });
+  EXAMS=TEMAS.map(([t,n])=>({id:pre+t+"-examen",t,name:"Examen final · "+n.split(" ").slice(1).join(" "),exam:true,items:POOL[t]}));
+}
+buildMods();
+function setSede(sd){SEDEL=sd;try{localStorage.setItem("lh_sede",sd)}catch(e){};S=sd;buildMods();VIEW="home";render();scrollTo(0,0);if(window.LHSYNC)window.LHSYNC(PROG)}
+window.LHSEDE=()=>SEDEL;
 const modById=id=>MODS.find(m=>m.id===id)||EXAMS.find(m=>m.id===id);
 
 /* --- progreso --- */
@@ -126,7 +135,7 @@ const P=id=>PROG[id]||(PROG[id]={});
 window.LHPROG=p=>{/* merge remoto */for(const k in p){const a=PROG[k]||{},b=p[k]||{};PROG[k]={seen:a.seen||b.seen,done:a.done||b.done,best:Math.max(a.best||0,b.best||0),tries:Math.max(a.tries||0,b.tries||0),last:[a.last||"",b.last||""].sort().pop()}}
   try{localStorage.setItem("lh_carta",JSON.stringify(PROG))}catch(e){};if(VIEW==="home")render()};
 window.LHRESET=uid=>{try{if(localStorage.getItem("lh_carta_uid")!==uid){localStorage.setItem("lh_carta_uid",uid);localStorage.removeItem("lh_carta");PROG={};if(VIEW==="home"&&!BROWSE)render()}}catch(e){}};
-window.LHMODS=()=>({total:MODS.length,names:Object.fromEntries(MODS.concat(EXAMS).map(m=>[m.id,m.name]))});
+window.LHMODS=()=>{const all={};const keep=SEDEL;["provenza","barrio"].forEach(sd=>{SEDEL=sd;buildMods();MODS.concat(EXAMS).forEach(m=>all[m.id]=m.name+" ("+(sd==="provenza"?"Provenza":"El Barrio")+")")});SEDEL=keep;buildMods();return {total:MODS.length,names:all,sede:SEDEL}};
 
 /* --- preguntas --- */
 const SED={provenza:"Solo Provenza",barrio:"Solo El Barrio",both:"En las dos sedes"};
@@ -158,7 +167,6 @@ function genQ(x,t,pool){
       if(x.venta){const o=opts(x.venta,others.map(y=>y.venta));if(o)Q.push({q:`¿Cómo vendes «${x.n}»?`,o,a:x.venta,why:x.venta})}
       if(x.d&&Math.random()<.5){const o=opts(x.n,others.filter(y=>norm(y.d)!==norm(x.d)).map(y=>y.n));if(o)Q.push({q:`¿Qué plato es? «${x.d}»`,o,a:x.n,why:`Es ${x.n}.`})}
     }
-    if(x.sedes.length===1||Math.random()<.3)Q.push({q:`¿Dónde se vende ${x.n}?`,o:[SED.both,SED.provenza,SED.barrio],a:sedeAns(x),why:`${x.n}: ${sedeAns(x).toLowerCase()}.`});
   }else{
     const pr=(k,lab)=>{if(x[k]&&x[k]!=="-"){const o=opts(x[k],LICI.map(y=>y[k]).filter(v=>v&&v!=="-"));if(o)Q.push({q:`¿Cuánto cuesta ${lab} de ${x.n} (horario bar)?`,o,a:x[k],why:`${x.n}: botella ${x.b}, media ${x.m}, shot ${x.s}.`})}};
     if(x.origen){const o=opts(x.origen,uniq(LICI.map(y=>y.origen)));if(o)Q.push({q:`¿De dónde es ${x.n}?`,o,a:x.origen,why:`${x.n}: ${x.origen}. ${x.dato||""}`})}
@@ -188,9 +196,14 @@ function buildQuiz(m){
 /* --- vistas --- */
 let VIEW="home",CUR=null,IDX=0,QZ=null,QI=0,OK=0,ANS=null,BROWSE=false;
 function pct(m){const p=PROG[m.id]||{};return p.best||0}
+function sedeHTML(){
+  return `<div class="res" style="margin-top:24px"><div style="font-size:52px">📍</div><h3>¿En qué sede trabajas?</h3><p class="note">Los módulos se arman con la carta de tu sede. Puedes cambiarla después.</p>
+  <button class="btn2 pk" data-sd="provenza">Provenza</button><button class="btn2 pk" data-sd="barrio">El Barrio</button></div>`;
+}
 function homeHTML(){
+  if(!SEDEL)return sedeHTML();
   const ms=MODS.filter(m=>m.t===T);const done=ms.filter(m=>(PROG[m.id]||{}).done).length;const ex=EXAMS.find(e=>e.t===T);const exOpen=done===ms.length;
-  return `<div class="hero"><div><b>${done} de ${ms.length}</b> módulos aprobados</div><div class="bar"><i style="width:${Math.round(done/ms.length*100)}%"></i></div>
+  return `<div class="sedeb">📍 Sede: <b>${SEDEL==="provenza"?"Provenza":"El Barrio"}</b> <button id="chSede">Cambiar</button></div><div class="hero"><div><b>${done} de ${ms.length}</b> módulos aprobados</div><div class="bar"><i style="width:${Math.round(done/ms.length*100)}%"></i></div>
   <p class="note" style="margin:8px 0 0">Cada módulo: primero estudias las tarjetas y luego respondes el quiz. Apruebas con 80%.</p></div>
   ${ms.map((m,i)=>{const p=PROG[m.id]||{};const st=p.done?`<span class="ok">✓ ${p.best}%</span>`:p.tries?`<span class="pend">${p.best}% · repite</span>`:p.seen?`<span class="pend">Falta el quiz</span>`:`<span class="mutd">${m.items.length} tarjetas</span>`;
     return `<button class="mod" data-m="${m.id}"><div class="mn">${i+1}</div><div class="mb"><b>${esc(m.name)}</b>${st}</div><div class="ar">›</div></button>`}).join("")}
@@ -258,6 +271,8 @@ function bindLearn(){
   const m=$("m");
   m.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{CUR=modById(b.dataset.m);if(CUR.exam){startQuiz();return}IDX=0;VIEW="lesson";render();scrollTo(0,0)});
   const on=(id,f)=>{const e=$(id);if(e)e.onclick=f};
+  m.querySelectorAll("[data-sd]").forEach(b=>b.onclick=()=>setSede(b.dataset.sd));
+  on("chSede",()=>{if(confirm("¿Cambiar de sede? Tu avance de cada sede se guarda por separado."))setSede(SEDEL==="provenza"?"barrio":"provenza")});
   on("toBrowse",()=>{BROWSE=true;render();scrollTo(0,0)});
   on("lBack",()=>{VIEW="home";render()});
   on("lPrev",()=>{IDX--;render();scrollTo(0,0)});
@@ -275,6 +290,7 @@ function bindLearn(){
       if(dx<0&&IDX<CUR.items.length-1){IDX++;render()}else if(dx>0&&IDX>0){IDX--;render()}},{passive:true})}
 }
 
+if(SEDEL)S=SEDEL;
 const sedeTag=x=>x.sedes.length===1?`<span class="tag">Solo ${SEDE[x.sedes[0]]}</span>`:"";
 function grid(list,key){
   const cats=[];list.forEach(x=>{if(!cats.includes(x.cat))cats.push(x.cat)});
@@ -324,7 +340,7 @@ document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{S=b.dataset.s;re
 $("q").oninput=e=>{Q=e.target.value;render()};
 function render(){
   $("top").classList.toggle("mini",!BROWSE);
-  const tb=document.querySelector(".tabs");tb.style.display=(BROWSE||VIEW==="home")?"":"none";
+  const tb=document.querySelector(".tabs");tb.style.display=(BROWSE||(VIEW==="home"&&SEDEL))?"":"none";
   if(BROWSE){renderBrowse();return}
   document.querySelectorAll("[data-t]").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===T));
   $("m").innerHTML=VIEW==="lesson"?lessonHTML():VIEW==="quiz"?quizHTML():homeHTML();bindLearn();
@@ -342,9 +358,9 @@ onAuthStateChanged(getAuth(fb),async u=>{if(!u){location.replace("../");return}
   let name="",role="";try{const s=await getDoc(doc(db,"staff",u.uid));if(s.exists()){name=s.data().name||"";role=s.data().role||""}}catch(e){}
   if(!name&&String(u.email||"").toLowerCase()==="machado.rarm@gmail.com")name="Administrador";
   try{const p=await getDoc(doc(db,"carta_progreso",u.uid));if(p.exists())window.LHPROG(p.data().mods||{})}catch(e){}
-  let tm=null;window.LHSYNC=mods=>{clearTimeout(tm);tm=setTimeout(()=>{const M=window.LHMODS();const ids=Object.keys(M.names).filter(k=>!k.endsWith("-examen"));
+  let tm=null;window.LHSYNC=mods=>{clearTimeout(tm);tm=setTimeout(()=>{const M=window.LHMODS();const pre=M.sede==="barrio"?"barr-":"prov-";const ids=Object.keys(M.names).filter(k=>k.startsWith(pre)&&!k.endsWith("-examen"));
     const done=ids.filter(k=>mods[k]&&mods[k].done).length;
-    setDoc(doc(db,"carta_progreso",u.uid),{name,role,mods,mn:Object.fromEntries(Object.keys(mods).map(k=>[k,M.names[k]||k])),total:M.total,done,last:new Date().toISOString()}).catch(()=>{})},800)};
+    setDoc(doc(db,"carta_progreso",u.uid),{name,role,sede:M.sede||"",mods,mn:Object.fromEntries(Object.keys(mods).map(k=>[k,M.names[k]||k])),total:M.total,done,last:new Date().toISOString()}).catch(()=>{})},800)};
   try{if(localStorage.getItem("lh_carta"))window.LHSYNC(JSON.parse(localStorage.getItem("lh_carta")))}catch(e){}
 });
 </script>
