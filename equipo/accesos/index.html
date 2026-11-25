@@ -85,6 +85,7 @@ const fmtWhen=iso=>{if(!iso)return "";const d=new Date(iso),n=new Date();const h
   return dd===0?"hoy "+hm:dd===1?"ayer "+hm:dd<7?"hace "+dd+" días":d.toLocaleDateString("es-CO",{day:"numeric",month:"short"})};
 
 /* ---- claves de contenido (Emplatado y Barra) ---- */
+const SPK={k:"sp",name:"Servicio Pro",ls:"lh_spk",enc:BASE+"/App/contenido.enc"};const KEYAPPS=()=>[SPK].concat(APPS.filter(a=>a.flag));let SHOWK=false;
 const getKey=a=>{try{return localStorage.getItem(a.ls)||""}catch(e){return ""}};
 async function checkKey(a,pass){
   const r=await fetch(a.enc+"?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error("No encontré el contenido de "+a.name);
@@ -194,8 +195,10 @@ function render(){
 
   <h2>Claves de contenido</h2>
   <div class="card keys"><p class="mut sm" style="margin-bottom:10px">Son las claves con las que se desbloquean las recetas. Se guardan en este celular.</p>
-  ${APPS.filter(a=>a.flag).map(a=>`<label for="k-${a.k}">${a.name} ${getKey(a)?'<span style="color:#5fe39a">✓ guardada</span>':'<span style="color:#FF7EA6">falta</span>'}</label><input class="tx" id="k-${a.k}" autocomplete="off" autocapitalize="none" placeholder="${getKey(a)?"••••••••":"Escribe la clave"}">`).join("")}
-  <button class="btn sm" id="kSave" style="margin-top:8px">Guardar claves</button><div class="err" id="kE"></div></div>`;
+  ${KEYAPPS().map(a=>`<label for="k-${a.k}">${a.name} ${getKey(a)?'<span style="color:#5fe39a">✓ guardada</span>':'<span style="color:#FF7EA6">falta</span>'}</label><input class="tx" id="k-${a.k}" autocomplete="off" autocapitalize="none" placeholder="${getKey(a)?"••••••••":"Escribe la clave"}">`).join("")}
+  <div class="row" style="margin-top:8px"><button class="btn sm" id="kSave">Guardar claves</button><button class="btn sm" id="kShow">${SHOWK?"Ocultar":"Ver"} claves guardadas</button></div>
+  ${SHOWK?`<div style="margin-top:10px;font-size:14px;line-height:1.8">${KEYAPPS().map(a=>`<div>${a.name}: <b style="color:var(--yel);user-select:all">${esc(getKey(a)||"— no guardada —")}</b></div>`).join("")}</div>`:""}
+  <div class="err" id="kE"></div></div>`;
   bind();
 }
 
@@ -265,8 +268,9 @@ function bind(){
     catch(err){const c=err&&err.code||"";e.style.color="#FF7EA6";e.textContent=c.includes("email-already")?"Ese usuario ya existe. Búscalo en la lista y dale las apps.":c.includes("weak-password")?"La clave es muy corta.":"No se pudo crear: "+(err.message||c)}
     finally{try{await deleteApp(sec)}catch(_){}}};
   // claves
+  $("kShow").onclick=()=>{SHOWK=!SHOWK;render()};
   $("kSave").onclick=async()=>{const e=$("kE");e.style.color="var(--mute)";e.textContent="Revisando…";
-    try{for(const a of APPS.filter(x=>x.flag)){const v=$("k-"+a.k).value.trim();if(v)await checkKey(a,v)}
+    try{for(const a of KEYAPPS()){const v=$("k-"+a.k).value.trim();if(v)await checkKey(a,v)}
       await backfillKeys();render();toast("Claves guardadas ✓")}
     catch(err){e.style.color="#FF7EA6";e.textContent=err.message||"No se pudo."}};
 }
