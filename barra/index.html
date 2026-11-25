@@ -178,6 +178,9 @@ const DOMAIN="staff.lahouse.app";
 const CHUNK=450000;
 const APP_ID="la-house-barra";
 const ADMIN_WA="573337196715";
+const ROLES=[["sc","Asesor de servicio"],["bt","Bartender"],["co","Cocinero(a)"],["cj","Cajero(a)"],["ho","Host"],["cv","Cover"],["le","Líder de turno"]];const roleName=r=>{const x=ROLES.find(y=>y[0]===r);return x?x[1]:(r||"")};
+const HUB=location.origin+"/App/admin/";
+
 const CARGOS=["Jefe de barra","Bartender","Auxiliar de barra","Mesero(a)","Líder de servicio","Administración","Otro"];
 
 const fb=initializeApp(CONFIG);const auth=getAuth(fb);const db=getFirestore(fb);
@@ -204,7 +207,7 @@ const slugU=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase
 const selS='style="width:100%;font:inherit;font-size:16px;min-height:48px;border:1px solid var(--line);border-radius:10px;padding:0 12px;background:#161616;color:var(--ink)"';
 let signingUp=false;
 function profileFields(){return `<label for="rgN">Nombre y apellido</label><input class="tx" id="rgN" autocomplete="name" placeholder="Ej: Ana López">
-  <label for="rgR">Cargo</label><select id="rgR" ${selS}>${CARGOS.map(c=>`<option>${c}</option>`).join("")}</select>`}
+  <label for="rgR">Cargo</label><select id="rgR" ${selS}>${ROLES.map(r=>`<option value="${r[0]}">${r[1]}</option>`).join("")}</select>`}
 function signupForm(){
   show(`<p>Crea tu cuenta. Tu líder la aprueba y entras al manual.</p><form id="rgF">${profileFields()}
   <label for="rgU">Usuario (con este entras)</label><input class="tx" id="rgU" autocomplete="username" autocapitalize="none" placeholder="Ej: ana.lopez">
@@ -235,7 +238,7 @@ function completeForm(user){
     catch(err){e.textContent="No se pudo enviar. Intenta de nuevo."}};
 }
 function waitScreen(user,staff,pending){
-  const txt=pending?`Hola, soy ${staff.name} (${staff.role||""}). Ya creé mi cuenta en el Manual de Barra - La House con el usuario ${staff.user||""}. ¿Me apruebas el acceso? 🙏`
+  const txt=pending?`Hola, soy ${staff.name} (${roleName(staff.role)}). Ya creé mi cuenta en el Manual de Barra - La House con el usuario ${staff.user||""}. ¿Me apruebas el acceso? 🙏`
     :`Hola, soy ${staff.name||""}. Quiero acceso al Manual de Barra - La House con mi usuario ${staff.user||""}. ¿Me lo activas? 🙏`;
   show(`<div style="font-size:52px">⏳</div><h2 style="font-size:26px">${pending?"¡Ya casi!":"Te falta el acceso"}</h2>
   <p>Hola <b>${esc(staff.name||"")}</b>, ${pending?"tu cuenta quedó creada. Falta que tu líder te apruebe.":"tu usuario todavía no tiene acceso al Manual de Barra."} Avísale y, apenas lo haga, el manual se abre solo.</p>
@@ -398,7 +401,7 @@ async function start(user){
     window.LHVIEW=id=>{if(seen[id])return;seen[id]=1;const t=new Date().toISOString();
       setDoc(vr,{last:t,lastFicha:id,fichas:{[id]:{n:increment(1),last:t}}},{merge:true}).catch(()=>{})}}
   if(isAdmin){await backfill();await loadStaff().catch(()=>{});
-    window.LHACC=()=>{panel()};
+    window.LHACC=()=>{location.href=HUB};
     ["tacc","accb"].forEach(i=>{const el=document.getElementById(i);if(el)el.hidden=false});
     const ab=document.getElementById("accb");if(ab){const np=STAFF.filter(s=>s.barra!==true&&s.pending===true&&s.pide==="barra").length;ab.textContent=np?"Equipo · "+np:"Equipo"}
     const tl=document.querySelector("#tacc");if(tl)tl.lastChild.textContent="Equipo";}
