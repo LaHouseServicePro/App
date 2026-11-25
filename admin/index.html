@@ -68,6 +68,8 @@ const APPS=[
 const ROLES=[["sc","Asesor de servicio"],["bt","Bartender"],["co","Cocinero(a)"],["cj","Cajero(a)"],["ho","Host"],["cv","Cover"],["le","Líder de turno"]];
 const roleName=r=>{const x=ROLES.find(y=>y[0]===r);return x?x[1]:(r||"")};
 const PIDE={servicepro:"sp",emplatado:"emp",barra:"bar"};
+const JOIN=BASE+"/App/equipo/";
+const BYROLE={co:["sp","emp"],bt:["sp","bar"],le:["sp","emp","bar"]};
 
 const fb=initializeApp(CONFIG);const auth=getAuth(fb);const db=getFirestore(fb);
 const $=id=>document.getElementById(id);
@@ -109,6 +111,7 @@ let ME=null,STAFF=[],VIS={sp:{},emp:{},bar:{}},FILTER="all",Q="",LAST=null,seen=
 const has=(s,a)=>a.k==="sp"?s.active===true:s[a.flag]===true;
 const isReq=s=>s.pending===true&&!APPS.some(a=>has(s,a));
 const pideOf=s=>PIDE[s.pide]||"sp";
+const preset=s=>s.pide==="equipo"?(BYROLE[s.role]||["sp"]):[pideOf(s)];
 
 async function loadVis(){for(const a of APPS){try{const v=await getDocs(collection(db,a.vis));VIS[a.k]={};v.docs.forEach(d=>VIS[a.k][d.id]=d.data())}catch(e){VIS[a.k]=null}}}
 
@@ -126,17 +129,18 @@ async function setApps(id,want){
 
 function waAccess(s){
   const apps=APPS.filter(a=>has(s,a));
-  const links=apps.map(a=>`• *${a.name}*: ${a.url}`).join("\n");
+  const links=apps.map(a=>`• *${a.name}*: ${a.url}`).join("\n")+`\n\nTodas tus apps en un solo lugar: ${JOIN}`;
   const cred=s.pass?`\n\nUsuario: *${s.user}*\nClave: *${s.pass}*`:`\n\nEntra con tu usuario *${s.user}* y tu clave.`;
   return "https://wa.me/?text="+encodeURIComponent(`Hola ${String(s.name||"").split(" ")[0]} 👋 Ya tienes acceso a las apps de La House:\n\n${links}${cred}\n\nGuárdalas en tu pantalla de inicio. Son personales, no las compartas.`);
 }
+const waJoin=()=>"https://wa.me/?text="+encodeURIComponent(`Hola 👋 Este es el link del *Equipo La House*:\n\n${JOIN}\n\nEntra, toca *Crear mi cuenta* y te apruebo el acceso a tus apps.`);
 const waInvite=a=>"https://wa.me/?text="+encodeURIComponent(`Hola 👋 Este es el link de *${a.name} - La House*:\n\n${a.url}\n\nEntra, toca *Crear mi cuenta* y yo te apruebo. Si ya tienes usuario de otra app de La House, entra con ese mismo.`);
 
 function visLine(s){const out=[];for(const a of APPS){if(!has(s,a))continue;const V=VIS[a.k];if(!V)continue;const v=V[s.id];
   out.push(`${a.name}: ${v&&v.last?`<b>${fmtWhen(v.last)}</b> · ${v.n||1} ${(v.n||1)===1?"vez":"veces"}`:`<span style="color:#FF7EA6">nunca</span>`}`)}
   return out.length?`<div class="vis">Última entrada — ${out.join(" · ")}</div>`:""}
 
-function chips(s,req){return `<div class="apps">${APPS.map(a=>{const on=req?a.k===pideOf(s):has(s,a);
+function chips(s,req){return `<div class="apps">${APPS.map(a=>{const on=req?preset(s).includes(a.k):has(s,a);
   return `<button class="ap ${on?"on":""}" data-ap="${a.k}" data-id="${esc(s.id)}" aria-pressed="${on}"><span class="dot"></span>${a.name}</button>`}).join("")}</div>`}
 
 function render(){
@@ -150,14 +154,15 @@ function render(){
   ${keysOk?"":`<div class="card" style="border-color:var(--yel)"><b>⚠️ Falta una clave de contenido.</b><p class="mut sm" style="margin-top:4px">Sin ella, las personas a las que les des Emplatado o Barra no podrán ver las recetas. Escríbela abajo, en «Claves de contenido».</p></div>`}
   <h2>Solicitudes${req.length?`<span class="badge">${req.length}</span>`:""}</h2>
   ${req.length?req.map(s=>`<div class="card req" id="r-${esc(s.id)}"><div class="h"><div><b>${esc(s.name)}</b><div class="mut sm">${esc(roleName(s.role))} · usuario <b style="color:#fff">${esc(s.user||"")}</b> · ${fmtWhen(s.created)}</div>
-    <div class="sm" style="margin-top:4px;color:var(--cy)">Pidió entrar a ${esc(APPS.find(a=>a.k===pideOf(s)).name)}</div></div></div>
+    <div class="sm" style="margin-top:4px;color:var(--cy)">${s.pide==="equipo"?"Se registró con el link del equipo":"Se registró desde "+esc(APPS.find(a=>a.k===pideOf(s)).name)}</div></div></div>
     <p class="sm mut" style="margin-top:10px">Elige a qué apps entra:</p>${chips(s,true)}
     <div class="row" style="margin-top:12px"><button class="btn gr sm" data-ok="${esc(s.id)}">Aprobar</button><button class="btn sm" data-no="${esc(s.id)}">Rechazar</button></div></div>`).join("")
     :`<p class="mut">No hay solicitudes nuevas.</p>`}
 
   <h2>Invitar al equipo</h2>
-  <p class="mut sm" style="margin-bottom:10px">Manda el link por WhatsApp. La persona crea su cuenta y te aparece arriba para aprobarla.</p>
-  <div class="share">${APPS.map(a=>`<a class="btn wa" href="${waInvite(a)}" target="_blank" rel="noopener">📲 Link de ${a.name}</a>`).join("")}</div>
+  <p class="mut sm" style="margin-bottom:10px">Un solo link para todos. La persona crea su cuenta, te llega el aviso y tú eliges a qué apps entra.</p>
+  <a class="btn wa" style="width:100%" href="${waJoin()}" target="_blank" rel="noopener">📲 Enviar link del equipo por WhatsApp</a>
+  <div class="row" style="margin-top:8px"><input class="tx" readonly value="${JOIN}" style="flex:1;min-height:42px;font-size:14px"><button class="btn sm" id="cpy">Copiar</button></div>
 
   <h2>Equipo (${STAFF.filter(s=>!isReq(s)).length})</h2>
   <p class="mut sm" style="margin-bottom:10px">Toca una app para darle o quitarle el acceso a esa persona. Se guarda al instante.</p>
@@ -187,6 +192,7 @@ function render(){
 function bind(){
   const m=$("main");
   $("q").oninput=e=>{Q=e.target.value;const p=e.target.selectionStart;render();const q=$("q");q.focus();try{q.setSelectionRange(p,p)}catch(_){}};
+  {const c=$("cpy");if(c)c.onclick=async()=>{try{await navigator.clipboard.writeText(JOIN);toast("Link copiado")}catch(e){toast(JOIN)}}}
   m.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{FILTER=b.dataset.f;render()});
   // chips en solicitudes: solo marcan; en equipo: guardan
   m.querySelectorAll(".ap[data-id]").forEach(b=>b.onclick=async()=>{

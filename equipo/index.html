@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Equipo La House</title><meta name="theme-color" content="#0B0B0B">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="La House">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--bg:#0B0B0B;--card:#151515;--line:#2a2a2a;--ink:#f5f5f5;--mute:#a8a8a8;--pink:#E8346E;--yel:#FCF050;--cy:#73F7FB;--pur:#8A1AC9}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;justify-content:center;padding:28px 20px 60px}
+button,input,select{font:inherit;color:inherit}
+.w{max-width:400px;width:100%;text-align:center}
+.logo{height:48px;margin-bottom:10px}
+h1{font-family:Anton,sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:.03em;font-size:28px;color:var(--yel)}
+h2{font-family:Anton,sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:.03em;font-size:24px;margin:6px 0}
+p{color:var(--mute);margin:8px 0;line-height:1.45}
+label{display:block;text-align:left;font-weight:700;font-size:14px;margin:12px 0 6px}
+.tx{width:100%;min-height:50px;border-radius:12px;border:1px solid var(--line);background:#161616;color:var(--ink);font-size:16px;padding:0 14px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border-radius:14px;border:1px solid var(--line);background:#1b1b1b;font-weight:800;font-size:16px;margin-top:14px;cursor:pointer;text-decoration:none;color:#fff}
+.btn.pk{background:var(--pink);border-color:var(--pink)}.btn.wa{background:#25d366;border-color:#25d366;color:#04210f}
+.app{display:flex;align-items:center;gap:14px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:12px;text-decoration:none;color:#fff}
+.app .ic{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex:none}
+.app b{display:block;font-size:17px}.app span{color:var(--mute);font-size:14px}
+.app .ar{margin-left:auto;font-size:22px;color:var(--mute)}
+.err{color:#FF7EA6;font-weight:700;min-height:22px;margin-top:10px}
+.sep{border-top:1px solid var(--line);margin:24px 0 8px;padding-top:16px}
+.lnk{background:none;border:0;color:var(--cy);font-weight:700;margin-top:14px;cursor:pointer;text-decoration:underline}
+</style></head><body><div class="w" id="v"><p>Cargando…</p></div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,doc,getDoc,setDoc,onSnapshot} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const CONFIG={"apiKey": "AIzaSyBYALdajSTvkyBiKIQobsQyNLhapFUYINo", "authDomain": "la-house-service-pro.firebaseapp.com", "projectId": "la-house-service-pro", "storageBucket": "la-house-service-pro.firebasestorage.app", "messagingSenderId": "49435128726", "appId": "1:49435128726:web:0978e5ca2fa46a5ee7a3b7"};
+const ADMIN_EMAILS=["machado.rarm@gmail.com"];
+const DOMAIN="staff.lahouse.app";
+const ADMIN_WA="573337196715";
+const B=location.origin;
+const APPS=[
+ {k:"sp",name:"Servicio Pro",desc:"Entrenamiento del equipo",ic:"⭐",bg:"#3a2a00",url:B+"/App/",has:s=>s.active===true},
+ {k:"emp",name:"Manual de Emplatado",desc:"Fichas de cocina",ic:"🍽️",bg:"#3a1424",url:B+"/emplatado/",has:s=>s.emplatado===true},
+ {k:"bar",name:"Manual de Barra",desc:"Recetas de barra",ic:"🍹",bg:"#1b1328",url:B+"/App/barra/",has:s=>s.barra===true}];
+const ROLES=[["sc","Asesor de servicio"],["bt","Bartender"],["co","Cocinero(a)"],["cj","Cajero(a)"],["ho","Host"],["cv","Cover"],["le","Líder de turno"]];
+const roleName=r=>{const x=ROLES.find(y=>y[0]===r);return x?x[1]:(r||"")};
+const fb=initializeApp(CONFIG);const auth=getAuth(fb);const db=getFirestore(fb);
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const toEmail=u=>{u=String(u||"").trim().toLowerCase();return u.includes("@")?u:u.replace(/\s+/g,"")+"@"+DOMAIN};
+const slugU=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim().replace(/\s+/g,".").replace(/[^a-z0-9._-]/g,"");
+const head=`<img class="logo" src="logo.png" alt="La House"><h1>Equipo La House</h1>`;
+const show=h=>{$("v").innerHTML=head+h};
+let busy=false,started=false,off=null;
+
+function signup(msg){
+  show(`<p>Crea tu cuenta. Tu líder la aprueba y te da acceso a tus apps.</p><form id="f">
+  <label for="n">Nombre y apellido</label><input class="tx" id="n" autocomplete="name" placeholder="Ej: Ana López">
+  <label for="r">Cargo</label><select class="tx" id="r">${ROLES.map(r=>`<option value="${r[0]}">${r[1]}</option>`).join("")}</select>
+  <label for="u">Usuario (con este entras a todo)</label><input class="tx" id="u" autocomplete="username" autocapitalize="none" placeholder="Ej: ana.lopez">
+  <label for="p">Clave (mínimo 6 caracteres)</label><input class="tx" id="p" type="password" autocomplete="new-password">
+  <label for="p2">Repite la clave</label><input class="tx" id="p2" type="password" autocomplete="new-password">
+  <button class="btn pk" type="submit" id="go">Crear mi cuenta</button><div class="err" id="e">${esc(msg||"")}</div></form>
+  <div class="sep"><b>¿Ya tienes cuenta?</b></div><button class="btn" id="toL">Entrar</button>`);
+  const n=$("n"),u=$("u");let t=false;u.oninput=()=>{t=true};n.oninput=()=>{if(!t)u.value=slugU(n.value)};
+  $("toL").onclick=()=>login();
+  $("f").onsubmit=async ev=>{ev.preventDefault();const e=$("e");
+    const name=n.value.trim(),role=$("r").value,us=slugU(u.value),p=$("p").value,p2=$("p2").value;
+    if(!name||!us){e.textContent="Escribe tu nombre y un usuario.";return}
+    if(p.length<6){e.textContent="La clave debe tener mínimo 6 caracteres.";return}
+    if(p!==p2){e.textContent="Las claves no coinciden.";return}
+    e.style.color="var(--mute)";e.textContent="Creando tu cuenta…";$("go").disabled=true;busy=true;
+    try{const cr=await createUserWithEmailAndPassword(auth,toEmail(us),p);
+      await setDoc(doc(db,"staff",cr.user.uid),{name,role,user:us,active:false,pending:true,self:true,pide:"equipo",created:new Date().toISOString()});
+      busy=false;started=false;start(cr.user)}
+    catch(err){busy=false;const c=err&&err.code||"";e.style.color="";$("go").disabled=false;
+      e.textContent=c.includes("email-already")?"Ese usuario ya existe. Elige otro, o toca «Entrar» si es tuyo.":c.includes("weak-password")?"La clave es muy corta.":c.includes("network")?"Sin conexión a internet.":"No se pudo crear la cuenta. Intenta de nuevo."}};
+}
+function login(msg){
+  show(`<p>Entra con tu usuario y clave.</p><form id="f"><label for="u">Usuario</label><input class="tx" id="u" autocomplete="username" autocapitalize="none" placeholder="Ej: ana.lopez">
+  <label for="p">Clave</label><input class="tx" id="p" type="password" autocomplete="current-password">
+  <button class="btn pk" type="submit" id="go">Entrar</button><div class="err" id="e">${esc(msg||"")}</div></form>
+  <button class="lnk" id="toS">No tengo cuenta: crear una</button>`);
+  $("toS").onclick=()=>signup();
+  $("f").onsubmit=async ev=>{ev.preventDefault();const e=$("e");e.textContent="Entrando…";$("go").disabled=true;
+    try{await signInWithEmailAndPassword(auth,toEmail($("u").value),$("p").value)}
+    catch(err){const c=err&&err.code||"";e.textContent=c.includes("too-many")?"Demasiados intentos. Espera unos minutos.":c.includes("network")?"Sin conexión a internet.":"Usuario o clave incorrectos.";$("go").disabled=false}};
+}
+function complete(user){
+  show(`<p>Completa tus datos para pedir acceso.</p><form id="f"><label for="n">Nombre y apellido</label><input class="tx" id="n" placeholder="Ej: Ana López">
+  <label for="r">Cargo</label><select class="tx" id="r">${ROLES.map(r=>`<option value="${r[0]}">${r[1]}</option>`).join("")}</select>
+  <button class="btn pk" type="submit">Enviar</button><div class="err" id="e"></div></form><button class="lnk" id="out">Salir</button>`);
+  $("out").onclick=()=>signOut(auth).then(()=>location.reload());
+  $("f").onsubmit=async ev=>{ev.preventDefault();const name=$("n").value.trim();if(!name){$("e").textContent="Escribe tu nombre.";return}
+    try{await setDoc(doc(db,"staff",user.uid),{name,role:$("r").value,user:String(user.email||"").split("@")[0],active:false,pending:true,self:true,pide:"equipo",created:new Date().toISOString()});started=false;start(user)}
+    catch(e){$("e").textContent="No se pudo enviar. Intenta de nuevo."}};
+}
+function paint(user,s){
+  const mine=APPS.filter(a=>a.has(s));
+  const outB=`<button class="lnk" id="out">Cerrar sesión</button>`;
+  if(mine.length){
+    show(`<h2>Hola, ${esc(String(s.name||"").split(" ")[0])} 👋</h2><p>Estas son tus apps. Entra con tu usuario <b style="color:#fff">${esc(s.user||"")}</b> y tu clave.</p>
+    ${mine.map(a=>`<a class="app" href="${a.url}"><div class="ic" style="background:${a.bg}">${a.ic}</div><div><b>${a.name}</b><span>${a.desc}</span></div><div class="ar">›</div></a>`).join("")}
+    <p style="font-size:13px;margin-top:18px">Guarda esta página en tu pantalla de inicio: aquí siempre verás tus apps.</p>${outB}`);
+  }else if(s.pending){
+    const txt=`Hola, soy ${s.name} (${roleName(s.role)}). Ya creé mi cuenta en el Equipo La House con el usuario ${s.user||""}. ¿Me apruebas el acceso? 🙏`;
+    show(`<div style="font-size:52px;margin-top:10px">⏳</div><h2>¡Ya casi!</h2><p>Hola <b style="color:#fff">${esc(s.name)}</b>, tu cuenta quedó creada. Tu líder ya recibió tu solicitud. Apenas te apruebe, aquí te aparecen tus apps.</p>
+    <p style="font-size:13px">Tu usuario: <b style="color:#fff">${esc(s.user||"")}</b></p>
+    <a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(txt)}">📲 Avisar al líder por WhatsApp</a>${outB}`);
+  }else{
+    const txt=`Hola, soy ${s.name||""}. Quiero acceso a las apps de La House con mi usuario ${s.user||""}. 🙏`;
+    show(`<div style="font-size:52px;margin-top:10px">🔒</div><h2>Sin apps por ahora</h2><p>Tu usuario no tiene acceso a ninguna app. Si crees que es un error, habla con tu líder.</p>
+    <a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(txt)}">📲 Escribirle al líder</a>${outB}`);
+  }
+  $("out").onclick=()=>signOut(auth).then(()=>location.reload());
+}
+async function start(user){
+  if(started)return;started=true;
+  if(ADMIN_EMAILS.includes(String(user.email||"").toLowerCase())){location.href=B+"/App/admin/";return}
+  show(`<p>Cargando…</p>`);
+  let s=null;try{const d=await getDoc(doc(db,"staff",user.uid));s=d.exists()?d.data():null}catch(e){started=false;show(`<p>Sin conexión. Revisa tu internet e intenta de nuevo.</p><button class="btn" onclick="location.reload()">Reintentar</button>`);return}
+  if(!s){if(busy)return;started=false;complete(user);return}
+  paint(user,s);
+  if(off)off();off=onSnapshot(doc(db,"staff",user.uid),sn=>{const d=sn.data();if(d)paint(user,d);else{started=false;complete(user)}},()=>{});
+}
+onAuthStateChanged(auth,u=>{if(u)start(u);else{started=false;if(off){off();off=null}signup()}});
+</script>
+</body></html>
