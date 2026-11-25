@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Manual de Barra - La House</title><meta name="theme-color" content="#0B0B0B">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Barra">
+<style>
+:root{--bg:#0B0B0B;--card:#151515;--line:#2a2a2a;--ink:#f5f5f5;--mute:#a8a8a8;--pink:#E8346E;--yel:#FCF050;--cy:#73F7FB;--pur:#8A1AC9}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:60px}
+button{font:inherit;color:inherit}
+header{display:flex;align-items:center;gap:12px;padding:14px 16px 6px;max-width:1100px;margin:auto}
+header img{height:38px}
+header h1{white-space:nowrap;font-family:Anton,sans-serif;font-weight:400;font-size:20px;letter-spacing:.03em;line-height:1;text-transform:uppercase}
+header h1 small{display:block;font:600 11px Inter;letter-spacing:.18em;color:var(--cy);margin-top:4px}
+header .sp{flex:1}
+@media(max-width:400px){header img{height:24px}header h1{font-size:16px}header h1 small{font-size:10px}header{gap:8px;padding-left:12px;padding-right:12px}}#accb{background:var(--pur);border:0;border-radius:10px;padding:8px 10px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}header img{height:32px}
+.bar{position:sticky;top:0;z-index:5;background:rgba(11,11,11,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bi{max-width:1100px;margin:auto;padding:8px 16px 0}
+.row1{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg{display:inline-flex;background:#1b1b1b;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;color:var(--mute);font-weight:700;font-size:13px;padding:7px 13px;border-radius:999px;cursor:pointer}
+.seg button.on{background:var(--pink);color:#fff}
+.q{flex:1;min-width:170px;position:relative}
+.q input{width:100%;background:#1b1b1b;border:1px solid var(--line);border-radius:999px;color:var(--ink);font:500 15px Inter;padding:9px 14px 9px 36px;outline:none}
+.q input:focus{border-color:var(--pink)}
+.q svg{position:absolute;left:12px;top:11px;opacity:.6}
+.chips{display:flex;gap:7px;overflow-x:auto;padding:10px 0;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;border:1px solid var(--line);background:none;border-radius:999px;padding:7px 13px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
+.chips button.on{background:var(--yel);color:#111;border-color:var(--yel)}
+.chips button span{opacity:.6;font-weight:600;margin-left:4px}
+main{max-width:1100px;margin:auto;padding:0 16px}
+h2{font-family:Anton,sans-serif;font-weight:400;font-size:26px;text-transform:uppercase;color:var(--pink);margin:22px 0 10px;letter-spacing:.02em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.c{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;text-align:left;display:flex;flex-direction:column;padding:0;transition:border-color .15s,transform .15s}
+.c:hover{border-color:var(--pink);transform:translateY(-2px)}
+.ph{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#1d1d1d}
+.ph.no{display:flex;align-items:center;justify-content:center;font-family:Anton,sans-serif;font-size:44px;color:#333;background:linear-gradient(135deg,#1b1328,#121212)}
+.c .b{padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px}
+.c .n{font-weight:800;font-size:15px;line-height:1.2}
+.c .m{font-size:12px;color:var(--mute)}
+.tg{display:flex;gap:5px;flex-wrap:wrap;margin-top:2px;align-items:flex-start}
+.t{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 7px;border-radius:6px;background:#222;color:var(--cy)}
+.t.p{background:#3a1424;color:#ff8db0}
+.t.w{background:#3a3410;color:var(--yel)}
+@media(max-width:560px){.grid{grid-template-columns:1fr 1fr;gap:9px}.c .n{font-size:14px}h2{font-size:22px}header h1{font-size:19px}}
+.empty{color:var(--mute);text-align:center;padding:40px 0}
+/* ficha */
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;z-index:20;align-items:flex-end;justify-content:center}
+#sheet.on{display:flex}
+#fic{background:#111;width:100%;max-width:760px;max-height:94vh;overflow-y:auto;border-radius:20px 20px 0 0;border:1px solid var(--line);position:relative}
+@media(min-width:800px){#sheet{align-items:center}#fic{border-radius:20px;display:grid;grid-template-columns:300px 1fr}#fic .fp{position:sticky;top:0;align-self:start}}
+.fp img,.fp .ph{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.fb{padding:16px 18px 24px}
+.fb h3{font-family:Anton,sans-serif;font-weight:400;font-size:30px;text-transform:uppercase;line-height:1.05;letter-spacing:.01em}
+.fb .ds{color:var(--mute);font-size:14px;margin-top:6px;line-height:1.45}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.kv div{background:#1a1a1a;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.kv b{display:block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--cy);margin-bottom:2px}
+.kv span{font-weight:700;font-size:15px}
+.sec{margin-top:18px}
+.sec h4{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--yel);margin-bottom:8px}
+.ins{width:100%;border-collapse:collapse}
+.ins td{padding:8px 0;border-bottom:1px dashed #2f2f2f;font-size:15px;vertical-align:top}
+.ins td:last-child{text-align:right;font-weight:800;white-space:nowrap;padding-left:10px;color:var(--yel)}
+.ins tr.hd td{color:var(--cy);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;border:0;padding-top:12px}
+ol.ps{list-style:none;counter-reset:p}
+ol.ps li{counter-increment:p;position:relative;padding:6px 0 6px 38px;font-size:15px;line-height:1.45}
+ol.ps li::before{content:counter(p);position:absolute;left:0;top:5px;width:26px;height:26px;border-radius:50%;background:var(--pink);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+.gar{background:#1b1328;border-left:3px solid var(--pur);border-radius:8px;padding:10px 12px;font-size:15px;line-height:1.45}
+.op{display:flex;gap:6px;flex-wrap:wrap}.op span{background:#1d1d1d;border:1px solid var(--line);border-radius:999px;padding:6px 11px;font-weight:700;font-size:13px}
+.nt{background:#2a2410;border-left:3px solid var(--yel);border-radius:8px;padding:10px 12px;font-size:14px;line-height:1.45;margin-top:14px}
+.pend{background:#3a1424;border-left:3px solid var(--pink)}
+#x{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:0;background:rgba(0,0,0,.65);font-size:22px;cursor:pointer;z-index:3}
+.nav{display:flex;gap:8px;margin-top:20px}.nav button{flex:1;border:1px solid var(--line);background:#1a1a1a;border-radius:12px;min-height:46px;font-weight:700;cursor:pointer}
+/* gate + panel (GitHub) */
+.gate{position:fixed;inset:0;background:var(--bg);z-index:50;display:none;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+.gate.on{display:flex}
+.gi{max-width:380px;width:100%;text-align:center}
+.gi h2{color:var(--ink)}
+.gi p{color:var(--mute);margin:8px 0}
+.gi label{display:block;text-align:left;font-weight:700;font-size:14px;margin:12px 0 6px}
+.tx{width:100%;min-height:48px;border-radius:10px;border:1px solid var(--line);background:#161616;color:var(--ink);font:500 16px Inter;padding:0 12px}
+.gi button{width:100%;min-height:50px;border:0;border-radius:12px;background:var(--pink);color:#fff;font-weight:800;font-size:16px;margin-top:16px;cursor:pointer}
+.gi button.sec{background:#1d1d1d;border:1px solid var(--line)}
+.err{color:#FF7EA6;font-weight:700;min-height:22px;margin-top:8px}
+#asheet{position:fixed;inset:0;background:var(--bg);z-index:30;display:none;overflow-y:auto}
+#asheet.on{display:block}
+.rvw{max-width:640px;margin:auto;padding:20px 16px 60px}
+.rvw h2{margin-top:6px}.rvw .lead{color:var(--mute);margin-bottom:14px}
+.rvw h3{margin:22px 0 10px;font-size:16px}
+.f{display:flex;flex-direction:column;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.f input{font:inherit;font-size:16px;min-height:48px;border:1px solid var(--line);border-radius:10px;padding:0 12px;background:var(--bg);color:var(--ink)}
+.f .go{min-height:48px;border:0;border-radius:12px;background:var(--pink);color:#fff;font-weight:800;margin-top:8px;cursor:pointer}
+.p{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.p .h{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.st{font-size:12px;font-weight:800;padding:3px 8px;border-radius:6px}.st.ok{background:#12351f;color:#5fe39a}.st.no{background:#3a1424;color:#ff8db0}
+.acts2{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.acts2 a,.acts2 button{min-height:42px;border-radius:10px;padding:0 14px;display:inline-flex;align-items:center;font-weight:700;border:1px solid var(--line);background:#1b1b1b;cursor:pointer;text-decoration:none;color:#fff}
+.acts2 .wa{background:#1f9d55;border-color:#1f9d55}
+.cf{display:none;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}.cf.on{display:flex}
+.cf .y{background:var(--pink);border:0;color:#fff;border-radius:10px;min-height:40px;padding:0 14px;font-weight:700;cursor:pointer}
+.cf .n{background:#1b1b1b;border:1px solid var(--line);border-radius:10px;min-height:40px;padding:0 14px;font-weight:700;cursor:pointer}
+#acx{position:fixed;top:12px;right:12px;z-index:31;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#1b1b1b;font-size:22px;cursor:pointer;display:none}
+#asheet.on~#acx{display:block}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222;border:1px solid var(--line);padding:12px 16px;border-radius:12px;font-weight:700;z-index:60;display:none}
+</style></head><body>
+<header><img src="logo.png" alt="La House"><h1>Manual de Barra<small>LA HOUSE</small></h1><span class="sp"></span><button id="accb" hidden>Equipo</button></header>
+<div class="bar"><div class="bi"><div class="row1"><div class="seg" id="sede"><button data-s="all" class="on">Todas</button><button data-s="provenza">Provenza</button><button data-s="barrio">El Barrio</button></div>
+<div class="q"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Buscar coctel o ingrediente"></div></div>
+<div class="chips" id="chips"></div></div></div>
+<main id="main"></main><div style="max-width:1100px;margin:10px auto 0;padding:0 16px;text-align:center"><button id="outb" hidden style="background:#1d1d1d;border:1px solid var(--line);border-radius:10px;padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer;color:var(--mute)">Cerrar sesión</button></div>
+<div id="sheet"><div id="fic"></div></div>
+<div id="asheet"><div class="rvw"></div></div><button id="acx" aria-label="Cerrar">×</button>
+<div id="toast"></div>
+<div id="fbgate" class="gate on" role="dialog" aria-modal="true" aria-labelledby="gt"></div>
+<script>
+window.startApp=function(D){
+const SN={provenza:'Provenza',barrio:'El Barrio'};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+const R=D.recetas,CATS=D.cats,byId={};R.forEach(r=>byId[r.id]=r);
+const CN=Object.fromEntries(CATS);
+let st={sede:localStorage.getItem('lhb_sede')||'all',cat:'all',q:''};let list=[];
+function vis(){const q=norm(st.q);return R.filter(r=>(st.sede==='all'||r.sedes.includes(st.sede))&&(!q||norm([r.nombre,r.desc,r.ins.map(i=>i[0]).join(' '),r.opciones.join(' ')].join(' ')).includes(q)))}
+function ph(r,cls){return r.img?`<img class="${cls||'ph'}" src="${r.img}" alt="" loading="lazy">`:`<div class="ph no">${esc(r.nombre.replace(/[^A-Za-zÁÉÍÓÚÑ]/g,'').slice(0,2).toUpperCase())}</div>`}
+function tags(r){let t='';if(r.sedes.length===1)t+=`<span class="t p">Solo ${SN[r.sedes[0]]}</span>`;if(r.pend)t+='<span class="t w">Pendiente</span>';return t}
+function render(){document.querySelectorAll('#sede button').forEach(b=>b.classList.toggle('on',b.dataset.s===st.sede));
+ const v=vis();const cnt={};v.forEach(r=>cnt[r.cat]=(cnt[r.cat]||0)+1);
+ $('chips').innerHTML=`<button data-c="all" class="${st.cat==='all'?'on':''}">Todas<span>${v.length}</span></button>`+CATS.filter(c=>cnt[c[0]]).map(c=>`<button data-c="${c[0]}" class="${st.cat===c[0]?'on':''}">${esc(c[1])}<span>${cnt[c[0]]}</span></button>`).join('');
+ if(st.cat!=='all'&&!cnt[st.cat])st.cat='all';
+ list=v.filter(r=>st.cat==='all'||r.cat===st.cat);
+ let h='';for(const [c,n] of CATS){const it=list.filter(r=>r.cat===c);if(!it.length)continue;
+  h+=`<h2>${esc(n)}</h2><div class="grid">`+it.map(r=>`<button class="c" data-id="${r.id}">${ph(r)}<div class="b"><div class="n">${esc(r.nombre)}</div><div class="m">${esc(r.vaso)} · ${esc(r.metodo)}</div><div class="tg">${tags(r)}</div></div></button>`).join('')+'</div>'}
+ $('main').innerHTML=h||'<p class="empty">No hay recetas con ese filtro.</p>';
+ list=CATS.flatMap(([c])=>list.filter(r=>r.cat===c));}
+function open(id){const r=byId[id];if(!r){close();return}
+ const insH=r.ins.map(i=>i[1]===''?`<tr class="hd"><td colspan="2">${esc(i[0].replace(/—/g,'').trim())}</td></tr>`:`<tr><td>${esc(i[0])}</td><td>${esc(i[1])}</td></tr>`).join('');
+ const i=list.findIndex(x=>x.id===id);
+ $('fic').innerHTML=`<button id="x" aria-label="Cerrar">×</button><div class="fp">${r.img?`<img src="${r.img}" alt="">`:ph(r)}</div><div class="fb">
+ <div class="tg" style="margin-bottom:6px"><span class="t">${esc(CN[r.cat])}</span>${tags(r)}${r.sedes.length>1?'<span class="t">Provenza y El Barrio</span>':''}</div>
+ <h3>${esc(r.nombre)}</h3>${r.desc?`<p class="ds">En carta: ${esc(r.desc)}</p>`:''}
+ <div class="kv"><div><b>Vaso</b><span>${esc(r.vaso)}</span></div><div><b>Método</b><span>${esc(r.metodo)}</span></div></div>
+ ${r.opciones.length?`<div class="sec"><h4>Opciones de licor</h4><div class="op">${r.opciones.map(o=>`<span>${esc(o)}</span>`).join('')}</div></div>`:''}
+ <div class="sec"><h4>Ingredientes</h4><table class="ins">${insH}</table></div>
+ <div class="sec"><h4>Preparación</h4><ol class="ps">${r.pasos.map(p=>`<li>${esc(p)}</li>`).join('')}</ol></div>
+ ${r.garnish&&r.garnish!=='—'?`<div class="sec"><h4>Decoración</h4><div class="gar">${esc(r.garnish)}</div></div>`:''}
+ ${r.nota?`<div class="nt ${r.pend?'pend':''}">${esc(r.nota)}</div>`:''}
+ <div class="nav"><button id="pv" ${i<=0?'disabled style="opacity:.35"':''}>← Anterior</button><button id="nx" ${i<0||i>=list.length-1?'disabled style="opacity:.35"':''}>Siguiente →</button></div></div>`;
+ $('sheet').classList.add('on');document.body.style.overflow='hidden';$('fic').scrollTop=0;try{window.LHVIEW&&window.LHVIEW(id)}catch(_){}
+ $('x').onclick=()=>history.back();$('pv').onclick=()=>step(-1);$('nx').onclick=()=>step(1);}
+function close(){$('sheet').classList.remove('on');if(!$('asheet').classList.contains('on'))document.body.style.overflow=''}
+function step(d){const id=location.hash.slice(1);const i=list.findIndex(x=>x.id===id);const n=list[i+d];if(n)location.replace('#'+n.id)}
+function route(){const id=location.hash.slice(1);if(byId[id])open(id);else close()}
+$('main').onclick=e=>{const c=e.target.closest('.c');if(c)location.hash=c.dataset.id};
+$('sheet').onclick=e=>{if(e.target.id==='sheet')history.back()};
+$('chips').onclick=e=>{const b=e.target.closest('button');if(!b)return;st.cat=b.dataset.c;render();scrollTo({top:0})};
+$('sede').onclick=e=>{const b=e.target.closest('button');if(!b)return;st.sede=b.dataset.s;try{localStorage.setItem('lhb_sede',st.sede)}catch(_){}render()};
+$('q').oninput=e=>{st.q=e.target.value;render()};
+addEventListener('hashchange',route);
+let tx=null;$('fic').addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+$('fic').addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(dx)>70)step(dx<0?1:-1)});
+document.addEventListener('keydown',e=>{if(!$('sheet').classList.contains('on'))return;if(e.key==='Escape')history.back();if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1)});
+$('acx').onclick=()=>{$('asheet').classList.remove('on');document.body.style.overflow=''};
+$('accb').onclick=()=>{if(window.LHACC){window.LHACC();$('asheet').classList.add('on');document.body.style.overflow='hidden'}};
+render();route();
+};
+</script>
+<script type="module">
+import {initializeApp,deleteApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,doc,getDoc,setDoc,collection,getDocs,increment} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const CONFIG={"apiKey": "AIzaSyBYALdajSTvkyBiKIQobsQyNLhapFUYINo", "authDomain": "la-house-service-pro.firebaseapp.com", "projectId": "la-house-service-pro", "storageBucket": "la-house-service-pro.firebasestorage.app", "messagingSenderId": "49435128726", "appId": "1:49435128726:web:0978e5ca2fa46a5ee7a3b7"};
+const ADMIN_EMAILS=["machado.rarm@gmail.com"];
+const DOMAIN="staff.lahouse.app";
+const CHUNK=450000;
+const APP_ID="la-house-barra";
+const CARGOS=["Jefe de barra","Bartender","Auxiliar de barra","Mesero(a)","Líder de servicio","Administración","Otro"];
+
+const fb=initializeApp(CONFIG);const auth=getAuth(fb);const db=getFirestore(fb);
+const g=document.getElementById("fbgate");
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const toEmail=u=>{u=String(u||"").trim().toLowerCase();return u.includes("@")?u:u.replace(/\s+/g,"")+"@"+DOMAIN};
+const appUrl=()=>location.origin+location.pathname.replace(/index\.html$/,"");
+const show=html=>{g.className="gate on";document.body.style.overflow="hidden";g.innerHTML=`<div class="gi"><h2 id="gt">Manual de Barra</h2>${html}</div>`};
+let started=false;
+
+function loginForm(msg){
+  show(`<p>Las recetas de barra de El Barrio y Provenza.</p><form id="lgF"><label for="lgU">Usuario</label><input class="tx" id="lgU" autocomplete="username" autocapitalize="none" placeholder="Ej: ana.lopez">
+  <label for="lgP">Clave</label><input class="tx" id="lgP" type="password" autocomplete="current-password">
+  <button type="submit" id="lgGo">Entrar</button><div class="err" id="lgE" role="status">${esc(msg||"")}</div></form>
+  <p style="font-size:14px;margin-top:14px">¿No tienes usuario y clave? Pídeselos a tu líder.</p>`);
+  document.getElementById("lgF").onsubmit=async ev=>{ev.preventDefault();const u=document.getElementById("lgU").value,p=document.getElementById("lgP").value,e=document.getElementById("lgE");
+    if(!u||!p){e.textContent="Escribe tu usuario y tu clave.";return}
+    e.textContent="Entrando…";document.getElementById("lgGo").disabled=true;
+    try{await signInWithEmailAndPassword(auth,toEmail(u),p)}
+    catch(err){const c=err&&err.code||"";e.textContent=c.includes("too-many")?"Demasiados intentos. Espera unos minutos.":c.includes("network")?"Sin conexión a internet. Revisa tu señal.":"Usuario o clave incorrectos.";document.getElementById("lgGo").disabled=false}};
+}
+function blocked(title,text,why){const u=auth.currentUser;show(`<div style="font-size:52px">🚫</div><h2 style="font-size:28px">${esc(title)}</h2><p>${esc(text)}</p><p style="font-size:13px;opacity:.7;margin-top:6px">Sesión: ${esc(u&&u.email||"—")}${why?" · "+esc(why):""}</p><button class="sec" id="lgOut">Salir</button>`);
+  document.getElementById("lgOut").onclick=()=>signOut(auth).then(()=>location.reload())}
+
+async function readContent(){
+  const meta=await getDoc(doc(db,"content","barra_meta"));
+  if(!meta.exists())return null;
+  const m=meta.data();let cached=null;
+  try{if(localStorage.getItem("lhb_cv")===m.version)cached=localStorage.getItem("lhb_c")}catch(e){}
+  if(cached)return {v:m.version,js:cached};
+  const parts=[];for(let i=0;i<m.parts;i++){const s=await getDoc(doc(db,"content","barra_p"+i));parts.push(s.data().t)}
+  const js=parts.join("");
+  try{localStorage.setItem("lhb_c",js);localStorage.setItem("lhb_cv",m.version)}catch(e){}
+  return {v:m.version,js};
+}
+async function uploadText(txt){
+  let o;try{o=JSON.parse(txt)}catch(e){throw new Error("El archivo no es un contenido válido.")}
+  if(!o||o.app!==APP_ID||typeof o.js!=="string"||!o.version)throw new Error("Ese archivo no es el contenido del Manual de Barra.");
+  const n=Math.ceil(o.js.length/CHUNK);
+  for(let i=0;i<n;i++)await setDoc(doc(db,"content","barra_p"+i),{t:o.js.slice(i*CHUNK,(i+1)*CHUNK)});
+  await setDoc(doc(db,"content","barra_meta"),{version:o.version,parts:n,updated:new Date().toISOString()});
+  try{localStorage.removeItem("lhb_c");localStorage.removeItem("lhb_cv")}catch(e){}
+  return o.version;
+}
+async function decryptSite(pass){
+  pass=String(pass||"").trim();if(!pass)throw new Error("Escribe la clave de contenido.");
+  let r;try{r=await fetch("contenido.enc?t="+Date.now(),{cache:"no-store"})}catch(e){throw new Error("Sin conexión a internet.")}
+  if(!r.ok)throw new Error("No encontré el archivo contenido.enc en GitHub.");
+  const o=await r.json();const b=x=>Uint8Array.from(atob(x),c=>c.charCodeAt(0));
+  const km=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveKey"]);
+  const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b(o.s),iterations:o.it,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["decrypt"]);
+  let pt;try{pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b(o.iv)},key,b(o.ct))}catch(e){throw new Error("La clave de contenido no es correcta.")}
+  const txt=new TextDecoder().decode(pt);const p=JSON.parse(txt);if(!p||p.app!==APP_ID)throw new Error("Contenido no válido.");
+  try{localStorage.setItem("lhb_c",p.js);localStorage.setItem("lhb_cv",p.version)}catch(e){}
+  return {v:p.version,js:p.js,txt};
+}
+async function siteVersion(){try{const r=await fetch("version.txt?t="+Date.now(),{cache:"no-store"});return r.ok?(await r.text()).trim():""}catch(e){return ""}}
+function cachedContent(v){try{const js=localStorage.getItem("lhb_c"),cv=localStorage.getItem("lhb_cv");if(js&&(!v||cv===v))return {v:cv,js}}catch(e){}return null}
+async function backfill(){let k="";try{k=localStorage.getItem("lhb_k")||""}catch(e){}if(!k)return;try{await loadStaff();for(const s of STAFF){if(s.barra===true&&s.bk!==k){const r=doc(db,"staff",s.id);const d=await getDoc(r);await setDoc(r,Object.assign({},d.data(),{bk:k}))}}}catch(e){}}
+async function uploadFromSite(pass){
+  pass=String(pass||"").trim();if(!pass)throw new Error("Escribe la clave de contenido.");
+  let r;try{r=await fetch("contenido.enc?t="+Date.now(),{cache:"no-store"})}catch(e){throw new Error("Sin conexión a internet.")}
+  if(!r.ok)throw new Error("No encontré el archivo contenido.enc en GitHub. Revisa que lo hayas subido.");
+  const o=await r.json();const b=x=>Uint8Array.from(atob(x),c=>c.charCodeAt(0));
+  const km=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveKey"]);
+  const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b(o.s),iterations:o.it,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["decrypt"]);
+  let pt;try{pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b(o.iv)},key,b(o.ct))}catch(e){throw new Error("La clave de contenido no es correcta.")}
+  return uploadText(new TextDecoder().decode(pt));
+}
+function uploadScreen(newer){
+  show(`<p>${newer?"Hay una versión nueva del manual en GitHub.":"Para activar el manual a tu equipo, escribe una vez la <b>clave de contenido</b> que te di en el chat."} Toca cargar y tus empleados lo reciben solos.</p>
+  <form id="upF"><label for="upK">Clave de contenido</label><input class="tx" id="upK" autocomplete="off" autocapitalize="none" placeholder="Ej: casa-ruta-1234">
+  <button type="submit" id="upS">Cargar contenido</button><div class="err" id="upE" role="status"></div></form>
+  ${newer?'<button class="sec" id="upSkip" style="margin-top:10px">Ahora no</button>':''}<button class="sec" id="lgOut" style="margin-top:10px">Salir</button>`);
+  const e=document.getElementById("upE");
+  document.getElementById("upF").onsubmit=async ev=>{ev.preventDefault();e.textContent="Cargando… puede tardar un minuto.";document.getElementById("upS").disabled=true;
+    try{const k=document.getElementById("upK").value.trim();const c=await decryptSite(k);try{localStorage.setItem("lhb_k",k)}catch(_){}try{await uploadText(c.txt)}catch(_){}try{localStorage.setItem("lhb_c",c.js);localStorage.setItem("lhb_cv",c.v)}catch(_){}await backfill();location.reload()}catch(err){e.textContent=err.message||"No se pudo cargar.";document.getElementById("upS").disabled=false}};
+  const sk=document.getElementById("upSkip");if(sk)sk.onclick=()=>{sessionStorage.setItem("lhb_skip","1");location.reload()};
+  document.getElementById("lgOut").onclick=()=>signOut(auth).then(()=>location.reload());
+}
+
+/* ---- panel del líder ---- */
+let STAFF=[];let LAST=null;
+const waText=s=>`Hola ${String(s.name||"").split(" ")[0]} 👋 Este es tu acceso al *Manual de Barra - La House* (recetas de barra de El Barrio y Provenza):\n\n${appUrl()}\n\nUsuario: *${s.user}*\nClave: *${s.pass}*\n\nGuárdalo en tu pantalla de inicio. Es personal, no lo compartas.`;
+const waUrl=s=>"https://wa.me/?text="+encodeURIComponent(waText(s));
+const slug=n=>String(n||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim().split(/\s+/).slice(0,2).join(".").replace(/[^a-z0-9.]/g,"");
+const newPass=()=>{const w=["mojito","limon","hielo","shaker","coctel","menta","sangria","tonica","naranja","cereza"];const a=crypto.getRandomValues(new Uint32Array(2));return w[a[0]%w.length].replace("ñ","n")+(1000+a[1]%9000)};
+async function loadStaff(){const s=await getDocs(collection(db,"staff"));STAFF=s.docs.map(d=>Object.assign({id:d.id},d.data())).filter(x=>x.name);
+  try{const v=await getDocs(collection(db,"barra_visitas"));VIS={};v.docs.forEach(d=>VIS[d.id]=d.data());VISOK=true}catch(e){VISOK=false}}
+let VIS={},VISOK=true,DNAMES={};
+const fmtWhen=iso=>{if(!iso)return "";const d=new Date(iso),n=new Date();const hm=d.toLocaleTimeString("es-CO",{hour:"numeric",minute:"2-digit"});
+  const day=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate());const dd=Math.round((day(n)-day(d))/864e5);
+  return dd===0?"hoy "+hm:dd===1?"ayer "+hm:dd<7?"hace "+dd+" días":d.toLocaleDateString("es-CO",{day:"numeric",month:"short"})};
+const visLine=s=>{if(!VISOK)return "";const v=VIS[s.id];
+  if(!v||!v.last)return `<div style="font-size:14px;margin-top:4px;color:#FF7EA6">Nunca ha entrado</div>`;
+  const f=v.fichas||{};const ids=Object.keys(f).sort((a,b)=>String(f[b].last||"").localeCompare(String(f[a].last||"")));
+  const list=ids.map(i=>`<li>${esc(DNAMES[i]||i)} <span style="color:var(--mute)">· ${f[i].n||1} ${(f[i].n||1)===1?"vez":"veces"} · ${fmtWhen(f[i].last)}</span></li>`).join("");
+  return `<div style="font-size:14px;margin-top:4px;color:#73F7FB">Última vez: <b>${fmtWhen(v.last)}</b> · entró ${v.n||1} ${(v.n||1)===1?"vez":"veces"} · vio ${ids.length} ${ids.length===1?"receta":"recetas"}</div>
+  ${ids.length?`<details style="font-size:14px;margin-top:4px"><summary style="cursor:pointer;color:var(--mute)">Ver recetas que abrió</summary><ul style="margin:6px 0 0 18px;padding:0">${list}</ul></details>`:""}`};
+function panel(){
+  const box=document.querySelector("#asheet .rvw");
+  const on=STAFF.filter(s=>s.barra===true),off=STAFF.filter(s=>s.barra!==true);
+  const row=s=>{const ok=s.barra===true;return `<div class="p" ${LAST===s.id?'style="outline:3px solid #25d366"':''}><div class="h"><b>${esc(s.name)}</b><span class="st ${ok?"ok":"no"}">${ok?"Con acceso":"Sin acceso"}</span></div>
+   <div style="color:var(--mute);font-size:14px">${esc(s.role||"")} · usuario <b style="color:#fff">${esc(s.user||"")}</b>${s.pass?` · clave <b style="color:#fff">${esc(s.pass)}</b>`:""}${s.active?" · también Servicio Pro":""}${s.emplatado===true?" · también Emplatado":""}</div>${s.barra===true?visLine(s):""}
+   <div class="acts2">${ok&&s.user&&s.pass?`<a class="wa" href="${waUrl(s)}" target="_blank" rel="noopener">${LAST===s.id?"Enviar acceso por WhatsApp":"Reenviar por WhatsApp"}</a>`:""}
+   ${ok?`<button class="rm" data-q="${esc(s.id)}">Quitar acceso</button>`:`<button data-on="${esc(s.id)}" style="background:#1f9d55;border-color:#1f9d55;color:#fff">Dar acceso</button>`}</div>
+   <div class="cf" id="cf-${esc(s.id)}"><span style="flex-basis:100%">¿Quitarle el acceso al manual a ${esc(String(s.name).split(" ")[0])}?</span><button class="y" data-off="${esc(s.id)}">Sí, quitar</button><button class="n" data-x="${esc(s.id)}">Cancelar</button></div></div>`};
+  box.innerHTML=`<h2 id="att">Equipo de barra</h2><p class="lead">Crea el usuario de cada persona y envíaselo por WhatsApp. Si le quitas el acceso, no vuelve a entrar al manual.</p>
+  <form class="f" id="nf"><label for="nn">Nombre completo</label><input id="nn" required placeholder="Ej.: Juan Pérez">
+  <label for="nc">Cargo</label><select id="nc" required style="font:inherit;font-size:16px;min-height:48px;border:1px solid var(--line);border-radius:10px;padding:0 12px;background:var(--bg);color:var(--ink)"><option value="">Elige el cargo</option>${CARGOS.map(c=>`<option>${c}</option>`).join("")}</select>
+  <label for="nu">Usuario</label><input id="nu" required autocapitalize="none" placeholder="Se llena solo con el nombre">
+  <label for="np">Clave</label><input id="np" required value="${newPass()}">
+  <label style="display:flex;gap:10px;align-items:center;font-size:15px;color:var(--ink)"><input type="checkbox" id="nsp" style="width:22px;min-height:22px"> También puede entrar a Servicio Pro</label>
+  <button class="go" type="submit">Crear usuario</button><div class="err" id="ne" style="color:#FF7EA6;font-weight:700"></div></form>
+  ${VISOK?"":`<p style="color:#FF7EA6;font-size:14px">No pude leer las entradas del equipo. Falta activar la regla de visitas en Firebase.</p>`}<h3>Con acceso (${on.length})</h3>${on.map(row).join("")||'<p style="color:var(--mute)">Todavía no le has dado acceso a nadie.</p>'}
+  <h3>Sin acceso (${off.length})</h3><p style="color:var(--mute);font-size:14px;margin:-4px 0 10px">Aquí también salen las personas de Servicio Pro: con «Dar acceso» entran al manual con el mismo usuario y clave.</p>${off.map(row).join("")||'<p style="color:var(--mute)">Nadie.</p>'}
+  <button class="sec" id="pOut" style="width:100%;min-height:48px;border-radius:12px;border:1px solid var(--line);background:#171717;color:#fff;font-weight:700;margin-top:16px;cursor:pointer">Cerrar sesión</button>`;
+  const nn=box.querySelector("#nn"),nu=box.querySelector("#nu");let touched=false;
+  nu.oninput=()=>{touched=true};nn.oninput=()=>{if(!touched)nu.value=slug(nn.value)};
+  box.querySelector("#nf").onsubmit=async ev=>{ev.preventDefault();const e=box.querySelector("#ne");
+    const s={name:nn.value.trim(),role:box.querySelector("#nc").value,user:nu.value.trim().toLowerCase(),pass:box.querySelector("#np").value.trim()};
+    if(s.pass.length<6){e.textContent="La clave debe tener mínimo 6 caracteres.";return}
+    e.style.color="var(--mute)";e.textContent="Creando…";
+    const sec=initializeApp(CONFIG,"alta-"+Date.now());const a2=getAuth(sec);
+    try{const cr=await createUserWithEmailAndPassword(a2,toEmail(s.user),s.pass);
+      await setDoc(doc(db,"staff",cr.user.uid),Object.assign({},s,{active:box.querySelector("#nsp").checked,barra:true,bk:localStorage.getItem("lhb_k")||"",created:new Date().toISOString()}));
+      await signOut(a2);LAST=cr.user.uid;await loadStaff();panel();toast("Usuario creado. Ahora envíaselo por WhatsApp.")}
+    catch(err){const c=err&&err.code||"";e.style.color="#FF7EA6";e.textContent=c.includes("email-already")?"Ese usuario ya existe. Usa otro, o búscalo abajo y dale acceso.":c.includes("weak-password")?"La clave es muy corta (mínimo 6 caracteres).":"No se pudo crear: "+(err.message||c)}
+    finally{try{await deleteApp(sec)}catch(_){}}};
+  box.querySelector("#pOut").onclick=()=>signOut(auth).then(()=>{try{localStorage.removeItem("lhb_c");localStorage.removeItem("lhb_cv")}catch(e){}location.reload()});
+  box.onclick=async ev=>{const b=ev.target.closest("button");if(!b)return;
+    if(b.dataset.q){box.querySelector("#cf-"+CSS.escape(b.dataset.q)).classList.add("on");return}
+    if(b.dataset.x){box.querySelector("#cf-"+CSS.escape(b.dataset.x)).classList.remove("on");return}
+    const id=b.dataset.on||b.dataset.off;if(!id)return;const val=!!b.dataset.on;
+    try{const r=doc(db,"staff",id);const s=await getDoc(r);const nd=Object.assign({},s.data(),{barra:val});if(val)nd.bk=localStorage.getItem("lhb_k")||"";else delete nd.bk;await setDoc(r,nd);
+      const x=STAFF.find(y=>y.id===id);if(x)x.barra=val;if(val)LAST=id;panel();toast(val?"Acceso activado":"Acceso retirado")}catch(err){toast("No se pudo guardar. Intenta de nuevo.")}};
+}
+function toast(m){const x=document.getElementById("toast");if(!x)return;x.textContent=m;x.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>x.style.display="none",2800)}
+
+async function start(user){
+  if(started)return;started=true;
+  show(`<p>Cargando…</p>`);
+  const isAdmin=ADMIN_EMAILS.includes(String(user.email||"").trim().toLowerCase());
+  let staffDoc=null;if(!isAdmin){let staff=null;
+    try{const s=await getDoc(doc(db,"staff",user.uid));staff=s.exists()?s.data():null}
+    catch(e){started=false;blocked("Sin conexión","No pudimos verificar tu acceso. Revisa tu internet e intenta de nuevo.");return}
+    if(!staff||staff.barra!==true){started=false;blocked("No tienes acceso","Tu usuario no tiene acceso al Manual de Barra. Si crees que es un error, habla con tu líder.");return}staffDoc=staff}
+  const sv=await siteVersion();let c=cachedContent(sv);let cerr="";
+  if(!c){let k="";try{k=isAdmin?(localStorage.getItem("lhb_k")||""):((staffDoc&&staffDoc.bk)||"")}catch(_){}
+    if(k){try{c=await decryptSite(k)}catch(e){cerr="clave: "+(e.message||"")}}}
+  if(!c){try{c=await readContent();if(c){try{localStorage.setItem("lhb_c",c.js);localStorage.setItem("lhb_cv",c.v)}catch(_){}}}catch(e){cerr=cerr||((e&&(e.code||e.message))||"error")}}
+  if(!c&&!sv)c=cachedContent("");
+  let hasK=false;try{hasK=!!localStorage.getItem("lhb_k")}catch(_){}
+  if(isAdmin&&(!c||(sv&&c.v!==sv)||!hasK)&&!sessionStorage.getItem("lhb_skip")){uploadScreen(!!c&&hasK);return}
+  if(!c){if(isAdmin){uploadScreen(false)}else{started=false;blocked("Falta activar tu acceso","Pídele a tu líder que entre al manual: al abrirlo se activa tu acceso a las recetas. Luego vuelve a abrir la app.",cerr||"sin clave")}return}
+  let D;try{D=JSON.parse(c.js)}catch(e){blocked("Error","No se pudo abrir el contenido. Avísale a tu líder.");return}
+  g.className="gate";g.innerHTML="";document.body.style.overflow="";
+  window.startApp(D);
+  try{(D.recetas||[]).forEach(r=>DNAMES[r.id]=r.nombre)}catch(_){}
+  {const ob=document.getElementById("outb");if(ob){ob.hidden=false;ob.onclick=()=>{if(confirm("¿Cerrar sesión en este celular?"))signOut(auth).then(()=>location.reload())}}}
+  if(!isAdmin){const vr=doc(db,"barra_visitas",user.uid);const nm=(staffDoc&&staffDoc.name)||"";const seen={};
+    setDoc(vr,{name:nm,last:new Date().toISOString(),n:increment(1)},{merge:true}).catch(()=>{});
+    window.LHVIEW=id=>{if(seen[id])return;seen[id]=1;const t=new Date().toISOString();
+      setDoc(vr,{last:t,lastFicha:id,fichas:{[id]:{n:increment(1),last:t}}},{merge:true}).catch(()=>{})}}
+  if(isAdmin){await backfill();await loadStaff().catch(()=>{});
+    window.LHACC=()=>{panel()};
+    ["tacc","accb"].forEach(i=>{const el=document.getElementById(i);if(el)el.hidden=false});
+    const ab=document.getElementById("accb");if(ab)ab.textContent="Equipo";
+    const tl=document.querySelector("#tacc");if(tl)tl.lastChild.textContent="Equipo";}
+}
+onAuthStateChanged(auth,u=>{if(u)start(u);else{started=false;loginForm()}});
+</script>
+<script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))</script>
+</body>
+</html>
+</body></html>
