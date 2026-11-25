@@ -108,7 +108,7 @@ function loginForm(msg){
 function blocked(t){gate(`<div style="font-size:48px">🚫</div><h2>${esc(t)}</h2><p class="mut">Esta app es solo para administradores.</p><button class="btn" id="o2">Salir</button>`);$("o2").onclick=()=>signOut(auth).then(()=>location.reload())}
 
 /* ---- datos ---- */
-let PROGS={},OPENP=null,ENTN=10,ME=null,STAFF=[],VIS={sp:{},emp:{},bar:{}},FILTER="all",Q="",LAST=null,seen=null;
+let TEAMP={},PROGS={},OPENP=null,ENTN=10,ME=null,STAFF=[],VIS={sp:{},emp:{},bar:{}},FILTER="all",Q="",LAST=null,seen=null;
 const has=(s,a)=>a.k==="sp"?s.active===true:s[a.flag]===true;
 const isReq=s=>s.pending===true&&!APPS.some(a=>has(s,a));
 const pideOf=s=>PIDE[s.pide]||"sp";
@@ -171,7 +171,7 @@ function render(){
     return L.length?`<div class="card" style="padding:6px 14px">${L.slice(0,ENTN).map(e=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)"><div><b>${esc(e.n)}</b><div class="mut sm">${e.a} · ${e.c} ${e.c===1?"vez":"veces"}</div></div><div class="sm" style="color:var(--cy);white-space:nowrap">${fmtWhen(e.t)}</div></div>`).join("")}</div>
     <div class="row">${L.length>ENTN?`<button class="btn sm" id="entMore">Ver más</button>`:""}<button class="btn sm" id="entRef">Actualizar</button></div>`:`<p class="mut">Todavía no hay entradas registradas.</p>`})()}
 
-  <h2>Progreso · Aprende la carta</h2>
+  <h2>Progreso del equipo</h2>
   ${progHTML()}
 
   <h2>Equipo (${STAFF.filter(s=>!isReq(s)).length})</h2>
@@ -208,9 +208,11 @@ function progHTML(){
     const ex=ks.filter(k=>k.endsWith("-examen")&&mods[k].done).length;
     const avg=ks.length?Math.round(ks.reduce((a,k)=>a+(mods[k].best||0),0)/ks.length):0;
     const weak=ks.filter(k=>!mods[k].done&&mods[k].tries).sort((a,b)=>(mods[a].best||0)-(mods[b].best||0))[0];
-    const open=OPENP===s.id;
+    const open=OPENP===s.id;const tp=TEAMP[s.id];
+    const spLine=tp&&s.active?(()=>{const md=Object.values(tp.mods||{}).filter(x=>x&&x.done).length;const sc=Object.values(tp.scen||{});const sa=sc.length?Math.round(sc.reduce((q,b)=>q+(+b.best||0),0)/sc.length):null;
+      const last=tp.updated||tp.lastDay;return `<div class="sm" style="margin-top:8px">⭐ <b>Servicio Pro</b> <span class="mut">· ${+tp.xp||0} XP · ${md}/31 módulos · ${sa!=null?sa+"% en "+sc.length+" sim.":"sin simulaciones"} · 🔥${+tp.streak||0}${last?" · "+fmtWhen(last):""}</span></div>`})():"";
     return `<div class="card" style="padding:12px 14px;cursor:pointer" data-pp="${esc(s.id)}"><div class="h"><div><b>${esc(s.name)}</b><div class="mut sm">${p&&p.sede?"📍 "+(p.sede==="barrio"?"El Barrio":"Provenza")+" · ":""}${p&&p.last?"Último estudio: "+fmtWhen(p.last):"No ha empezado"}</div></div><div style="text-align:right"><b style="color:${pc>=100?"#5fe39a":"var(--yel)"}">${done}/${tot}</b><div class="mut sm">${ex?ex+" examen"+(ex>1?"es":"")+" 🏆":""}</div></div></div>
-    <div style="height:8px;background:#222;border-radius:99px;margin-top:8px;overflow:hidden"><i style="display:block;height:100%;width:${pc}%;background:linear-gradient(90deg,var(--pink),var(--yel))"></i></div>
+    ${spLine}<div class="sm" style="margin-top:8px">📖 <b>Aprende la carta</b></div><div style="height:8px;background:#222;border-radius:99px;margin-top:6px;overflow:hidden"><i style="display:block;height:100%;width:${pc}%;background:linear-gradient(90deg,var(--pink),var(--yel))"></i></div>
     ${ks.length?`<div class="mut sm" style="margin-top:6px">Promedio ${avg}%${weak?` · Le cuesta: <b style="color:#FF7EA6">${esc((p.mn||{})[weak]||weak)}</b>`:""}</div>`:""}
     ${open&&ks.length?`<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">${ks.sort().map(k=>{const m=mods[k];return `<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;font-size:14px"><span>${tema(k)} ${esc((p.mn||{})[k]||k)}</span><span style="white-space:nowrap;color:${m.done?"#5fe39a":m.tries?"var(--yel)":"var(--mute)"}">${m.done?"✓ ":""}${m.tries?m.best+"% · "+m.tries+" "+(m.tries>1?"intentos":"intento"):"Estudiando"}</span></div>`}).join("")}</div>`:""}
   </div>`}).join("");
@@ -295,6 +297,7 @@ async function start(user){
   if(!ok){location.replace("../");return}
   await loadVis();
   $("gate").hidden=true;$("app").hidden=false;paintAlert();
+  onSnapshot(collection(db,"team"),sn=>{TEAMP={};sn.docs.forEach(d=>TEAMP[d.id]=d.data());const ae=document.activeElement;if(ae&&ae.closest&&ae.closest("#nf,.keys"))return;if(STAFF.length)render()},()=>{});
   onSnapshot(collection(db,"carta_progreso"),sn=>{PROGS={};sn.docs.forEach(d=>PROGS[d.id]=d.data());const ae=document.activeElement;if(ae&&ae.closest&&ae.closest("#nf,.keys"))return;if(STAFF.length)render()},()=>{});
   onSnapshot(collection(db,"staff"),sn=>{
     STAFF=sn.docs.map(d=>Object.assign({id:d.id},d.data())).filter(x=>x.name);
