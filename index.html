@@ -208,6 +208,7 @@ import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,getDocs,onSnapshot,i
 const CONFIG={"apiKey": "AIzaSyBYALdajSTvkyBiKIQobsQyNLhapFUYINo", "authDomain": "la-house-service-pro.firebaseapp.com", "projectId": "la-house-service-pro", "storageBucket": "la-house-service-pro.firebasestorage.app", "messagingSenderId": "49435128726", "appId": "1:49435128726:web:0978e5ca2fa46a5ee7a3b7"};
 const ADMIN_EMAILS=["machado.rarm@gmail.com"];
 const DOMAIN="staff.lahouse.app";
+const ADMIN_WA="573337196715";
 const STATE_KEY="nightpro_v2";
 const CHUNK=450000;
 
@@ -276,7 +277,8 @@ function pendingScreen(user,staff){
   show(`<div class="card" style="margin-top:26px;text-align:center"><div style="font-size:52px">⏳</div><h2 style="margin:8px 0">¡Ya casi!</h2>
   <p class="mut">Hola <b>${esc(staff.name)}</b>, tu cuenta quedó creada. Falta que tu líder te apruebe. Avísale y, apenas lo haga, la app se abre sola.</p>
   <p class="mut" style="margin-top:10px;font-size:13px">Tu usuario: <b>${esc(staff.user||"")}</b></p>
-  <button class="btn" id="lgOut" style="margin-top:14px;background:var(--card)">Salir</button></div>`);
+  <a class="btn" style="display:block;margin-top:14px;background:#25d366;color:#04210f;text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/${ADMIN_WA}?text=${encodeURIComponent("Hola, soy "+staff.name+" ("+(ROLE_LIST.find(r=>r[0]===staff.role)||["",""])[1]+"). Ya creé mi cuenta en La House - Servicio Pro con el usuario "+(staff.user||"")+". ¿Me apruebas el acceso? 🙏")}">📲 Avisar al administrador por WhatsApp</a>
+  <button class="btn" id="lgOut" style="margin-top:10px;background:var(--card)">Salir</button></div>`);
   document.getElementById("lgOut").onclick=()=>signOut(auth).then(()=>location.reload());
   const off=onSnapshot(doc(db,"staff",user.uid),sn=>{const d=sn.data();if(d&&d.active){off();started=false;start(user)}else if(d&&!d.pending&&!d.active){off();blocked("No tienes acceso","Tu solicitud no fue aprobada. Si crees que es un error, habla con tu líder.")}},()=>{});
 }
@@ -364,6 +366,10 @@ async function start(user){
     const raw=localStorage.getItem(STATE_KEY);const st=raw?JSON.parse(raw):{v:2};
     if(!st.name){st.v=2;st.name=isOwner?"Administrador":(staff&&staff.name||"");st.role=isOwner?"le":(staff&&staff.role||"");localStorage.setItem(STATE_KEY,JSON.stringify(st))}}catch(e){}
   window.LH={contentVersion:c.v,appUrl:location.origin+location.pathname,isAdmin,isOwner,
+    unlockAll:isAdmin||!!(staff&&staff.unlockAll),pendingCount:0,
+    setUnlock:async(id,on)=>{const r=doc(db,"staff",id);const x=await getDoc(r);await setDoc(r,Object.assign({},x.data(),{unlockAll:on}))},
+    alertsOn:()=>("Notification" in window)&&Notification.permission==="granted",
+    enableAlerts:async()=>{if(!("Notification" in window))throw new Error("Este celular no permite avisos desde la app.");const p=await Notification.requestPermission();if(p!=="granted")throw new Error("No diste permiso para los avisos.");return true},
     setAdmin:async(id,on)=>{const r=doc(db,"staff",id);const x=await getDoc(r);await setDoc(r,Object.assign({},x.data(),{admin:on}))},
     reject:async id=>{const r=doc(db,"staff",id);const x=await getDoc(r);await setDoc(r,Object.assign({},x.data(),{active:false,pending:false}))},
     logout:()=>signOut(auth).then(()=>{try{localStorage.removeItem(STATE_KEY);localStorage.removeItem("lh_uid")}catch(e){}location.reload()}),
@@ -381,12 +387,36 @@ async function start(user){
   };
   window.claude=makeAdapter(user.uid,isAdmin,staff&&staff.name);
   if(!isOwner&&staff){try{setDoc(doc(db,"servicepro_visitas",user.uid),{name:staff.name||"",role:staff.role||"",last:new Date().toISOString(),n:increment(1)},{merge:true}).catch(()=>{})}catch(_){}}
-  if(isAdmin){try{lhVisitasBtn()}catch(_){}}
+  if(isAdmin){try{lhVisitasBtn()}catch(_){}try{lhWatchPending()}catch(_){}}
   gate.style.display="none";gate.innerHTML="";document.getElementById("nav").style.display="";
   const s=document.createElement("script");s.text=c.js;document.body.appendChild(s);
 }
 
 
+
+// Solicitudes de acceso: aviso en el inicio, número en el ícono y notificación del celular (solo administradores)
+let lhSeenPend=null;
+function lhWatchPending(){
+  onSnapshot(collection(db,"staff"),sn=>{
+    const pend=sn.docs.filter(d=>{const x=d.data();return x&&!x.active&&x.pending});
+    window.LH.pendingCount=pend.length;
+    try{if(navigator.setAppBadge){pend.length?navigator.setAppBadge(pend.length):navigator.clearAppBadge()}}catch(_){}
+    const ids=pend.map(d=>d.id);
+    if(lhSeenPend){const nuevos=pend.filter(d=>!lhSeenPend.has(d.id));
+      if(nuevos.length&&window.LH.alertsOn()){const names=nuevos.map(d=>d.data().name).join(", ");
+        navigator.serviceWorker&&navigator.serviceWorker.ready.then(r=>r.showNotification("🔔 Nueva solicitud de acceso",{body:names+" quiere entrar a Servicio Pro. Toca para aprobar.",icon:"icon-192.png",badge:"icon-192.png",tag:"lh-pend",renotify:true})).catch(()=>{})}
+      if(nuevos.length){try{toast("🔔 Nueva solicitud: "+nuevos.map(d=>d.data().name).join(", "))}catch(_){}}}
+    lhSeenPend=new Set(ids);
+    try{lhPendBanner()}catch(_){}
+  },()=>{});
+}
+function lhPendBanner(){const app=document.getElementById("app");if(!app)return;let v="";try{v=view}catch(e){}
+  const old=document.getElementById("lh-pend");const n=(window.LH&&window.LH.pendingCount)||0;
+  if(v!=="home"||!n){if(old)old.remove();return}
+  const html=`<div class="ic" style="background:#ffe60033">🔔</div><div class="bd"><h3>${n===1?"1 persona pide":n+" personas piden"} acceso</h3><div class="mut">Toca para aprobar o rechazar</div></div><div>›</div>`;
+  if(old){if(old.innerHTML!==html)old.innerHTML=html;return}
+  const m=app.querySelector(".lh-photo")||app.querySelector(".lh-marquee");if(!m)return;
+  const d=document.createElement("div");d.id="lh-pend";d.className="card mod lh-neon";d.setAttribute("data-act","go('access')");d.innerHTML=html;m.after(d)}
 // Entradas del equipo (solo administradores)
 function lhVisitasBtn(){if(document.getElementById("lhvb"))return;
   const b=document.createElement("button");b.id="lhvb";b.textContent="Entradas";
@@ -419,6 +449,7 @@ function lhDecorate(){const app=document.getElementById("app");if(!app)return;
   let v="";try{v=view}catch(e){}
   const f=app.querySelector(".fade");if(f){const c=f.querySelector(".card");if(c&&!c.classList.contains("lh-neon")&&(v==="home"||v==="me"||v==="rank"))c.classList.add("lh-neon")}
   if(v==="home"&&!app.querySelector(".lh-photo")){const m=app.querySelector(".lh-marquee");if(m){const ph=document.createElement("div");ph.className="lh-photo";ph.innerHTML='<b class="lht" data-lhd="1">'+[..."¡Hoy la fiesta la haces tú!"].map((ch,i)=>ch===" "?" ":`<span class="c${i%4}">${ch}</span>`).join("")+'</b>';m.after(ph)}}
+  try{if(window.LH&&window.LH.isAdmin)lhPendBanner()}catch(_){}
   document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.classList.contains("on")||b.getAttribute("aria-current")==="page"))}
 new MutationObserver(()=>lhDecorate()).observe(document.getElementById("app"),{childList:true,subtree:true});
 onAuthStateChanged(auth,u=>{if(signingUp)return;if(u)start(u);else{started=false;loginForm()}});
