@@ -55,7 +55,7 @@ details summary{cursor:pointer}
 <script type="module">
 import {initializeApp,deleteApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,doc,getDoc,setDoc,collection,getDocs,onSnapshot} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,getDocs,onSnapshot} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const CONFIG={"apiKey": "AIzaSyBYALdajSTvkyBiKIQobsQyNLhapFUYINo", "authDomain": "la-house-service-pro.firebaseapp.com", "projectId": "la-house-service-pro", "storageBucket": "la-house-service-pro.firebasestorage.app", "messagingSenderId": "49435128726", "appId": "1:49435128726:web:0978e5ca2fa46a5ee7a3b7"};
 const ADMIN_EMAILS=["machado.rarm@gmail.com"];
@@ -167,7 +167,7 @@ function render(){
     <div class="mut sm">${esc(roleName(s.role))} · usuario <b style="color:#fff">${esc(s.user||"")}</b>${s.pass?` · clave <b style="color:#fff">${esc(s.pass)}</b>`:""}</div></div></div>
     ${chips(s,false)}${visLine(s)}
     <div class="row" style="margin-top:10px">${APPS.some(a=>has(s,a))&&s.user?`<a class="btn wa sm" href="${waAccess(s)}" target="_blank" rel="noopener">Enviar accesos por WhatsApp</a>`:""}
-    ${ME&&s.id===ME?"":`<button class="btn sm" data-adm="${esc(s.id)}" style="${s.admin?"":"border-color:var(--pur);color:#d9a8ff"}">${s.admin?"Quitar administrador":"Hacer administrador"}</button>`}</div></div>`).join("")||'<p class="mut">Nadie con ese filtro.</p>'}
+    ${ME&&s.id===ME?"":`<button class="btn sm" data-adm="${esc(s.id)}" style="${s.admin?"":"border-color:var(--pur);color:#d9a8ff"}">${s.admin?"Quitar administrador":"Hacer administrador"}</button><button class="btn sm" data-del="${esc(s.id)}" style="color:#FF7EA6">Eliminar</button>`}</div></div>`).join("")||'<p class="mut">Nadie con ese filtro.</p>'}
 
   <h2>Crear usuario</h2>
   <form class="card" id="nf"><label for="nn">Nombre completo</label><input class="tx" id="nn" required placeholder="Ej.: Juan Pérez">
@@ -204,6 +204,10 @@ function bind(){
     if(!confirm(on?`¿Hacer administrador a ${s.name}? Podrá entrar a Accesos, aprobar solicitudes y dar o quitar apps a todo el equipo. También queda con Servicio Pro.`:`¿Quitarle el rol de administrador a ${s.name}?`))return;
     try{const r=doc(db,"staff",id);const d=await getDoc(r);const nd=Object.assign({},d.data(),{admin:on});if(on){nd.active=true;nd.pending=false;await setDoc(doc(db,"team",id),{inactive:false},{merge:true})}
       await setDoc(r,nd);Object.assign(s,nd);LAST=id;render();toast(on?"Ahora es administrador ✓":"Ya no es administrador")}catch(e){toast("No se pudo guardar.")}});
+  m.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{const id=b.dataset.del,s=STAFF.find(x=>x.id===id);if(!s)return;
+    if(!confirm(`¿Eliminar a ${s.name} (${s.user||""})?\n\nPierde el acceso a las 3 apps y sale de la lista. Esto no se puede deshacer.`))return;
+    b.disabled=true;try{await setDoc(doc(db,"team",id),{inactive:true},{merge:true}).catch(()=>{});await deleteDoc(doc(db,"staff",id));STAFF=STAFF.filter(x=>x.id!==id);render();toast(s.name+" eliminado")}
+    catch(e){b.disabled=false;toast("No se pudo eliminar. Intenta de nuevo.")}});
   m.querySelectorAll("[data-no]").forEach(b=>b.onclick=async()=>{if(!confirm("¿Rechazar esta solicitud?"))return;const id=b.dataset.no;
     try{const r=doc(db,"staff",id);const s=await getDoc(r);await setDoc(r,Object.assign({},s.data(),{pending:false,active:false}));const x=STAFF.find(y=>y.id===id);if(x){x.pending=false;x.active=false}render();toast("Solicitud rechazada")}
     catch(e){toast("No se pudo guardar.")}});
