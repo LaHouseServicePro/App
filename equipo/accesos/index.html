@@ -64,7 +64,7 @@ const DOMAIN="staff.lahouse.app";
 const BASE=location.origin;
 const APPS=[
  {k:"sp",name:"Servicio Pro",url:BASE+"/App/",vis:"servicepro_visitas"},
- {k:"emp",name:"Emplatado",url:BASE+"/emplatado/",vis:"emplatado_visitas",flag:"emplatado",key:"ek",ls:"lhm_k",enc:BASE+"/emplatado/contenido.enc",app:"la-house-emplatado"},
+ {k:"emp",name:"Emplatado",url:BASE+"/App/emplatado/",vis:"emplatado_visitas",flag:"emplatado",key:"ek",ls:"lhm_k",enc:BASE+"/App/emplatado/contenido.enc",app:"la-house-emplatado"},
  {k:"bar",name:"Barra",url:BASE+"/App/barra/",vis:"barra_visitas",flag:"barra",key:"bk",ls:"lhb_k",enc:BASE+"/App/barra/contenido.enc",app:"la-house-barra"}];
 const ROLES=[["sc","Asesor de servicio"],["bt","Bartender"],["co","Cocinero(a)"],["cj","Cajero(a)"],["ho","Host"],["cv","Cover"],["le","Líder de turno"]];
 const roleName=r=>{const x=ROLES.find(y=>y[0]===r);return x?x[1]:(r||"")};

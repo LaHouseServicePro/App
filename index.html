@@ -389,6 +389,9 @@ async function start(user){
   gate.style.display="none";gate.innerHTML="";document.getElementById("nav").style.display="";
   const s=document.createElement("script");s.text=c.js;document.body.appendChild(s);
   try{const og=window.go;if(typeof og==="function")window.go=function(v){if(v==="access"){location.href=location.origin+"/App/equipo/accesos/";return}return og.apply(this,arguments)}}catch(_){}
+  try{const kill=()=>{document.querySelectorAll('[data-act*="access"]').forEach(e=>e.remove());
+      document.querySelectorAll("button").forEach(b=>{if(/^\s*(Quitar|Aprobar|Rechazar)\s*$/.test(b.textContent))b.remove()})};
+    kill();new MutationObserver(kill).observe(document.body,{childList:true,subtree:true})}catch(_){}
 }
 
 

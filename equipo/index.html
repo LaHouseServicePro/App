@@ -37,7 +37,7 @@ const ADMIN_WA="573337196715";
 const B=location.origin;
 const APPS=[
  {k:"sp",name:"Servicio Pro",desc:"Entrenamiento del equipo",ic:"⭐",bg:"#3a2a00",url:B+"/App/",has:s=>s.active===true},
- {k:"emp",name:"Manual de Emplatado",desc:"Fichas de cocina",ic:"🍽️",bg:"#3a1424",url:B+"/emplatado/",has:s=>s.emplatado===true},
+ {k:"emp",name:"Manual de Emplatado",desc:"Fichas de cocina",ic:"🍽️",bg:"#3a1424",url:B+"/App/emplatado/",has:s=>s.emplatado===true},
  {k:"bar",name:"Manual de Barra",desc:"Recetas de barra",ic:"🍹",bg:"#1b1328",url:B+"/App/barra/",has:s=>s.barra===true}];
 const ROLES=[["sc","Asesor de servicio"],["bt","Bartender"],["co","Cocinero(a)"],["cj","Cajero(a)"],["ho","Host"],["cv","Cover"],["le","Líder de turno"]];
 const roleName=r=>{const x=ROLES.find(y=>y[0]===r);return x?x[1]:(r||"")};
