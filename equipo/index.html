@@ -96,7 +96,7 @@ function complete(user){
 function paint(user,s){
   const mine=APPS.filter(a=>a.has(s));
   const outB=`<button class="lnk" id="out">Cerrar sesión</button>`;
-  const carta=`<a class="app" href="carta/" style="border-color:#7a6a00"><div class="ic" style="background:#3a3500">📖</div><div><b>Conocimiento de carta</b><span>Cócteles, comida y licor</span></div><div class="ar">›</div></a>`;
+  const carta=`<a class="app" href="carta/" style="border-color:#7a6a00"><div class="ic" style="background:#3a3500">📖</div><div><b>Aprende la carta</b><span>Módulos y quiz de cócteles, comida y licor</span></div><div class="ar">›</div></a>`;
   if(mine.length){
     show(`<h2>Hola, ${esc(String(s.name||"").split(" ")[0])} 👋</h2><p>Toca una app para entrar.</p>
     ${carta}${mine.map(a=>`<a class="app" href="${a.url}"><div class="ic" style="background:${a.bg}">${a.ic}</div><div><b>${a.name}</b><span>${a.desc}</span></div><div class="ar">›</div></a>`).join("")}

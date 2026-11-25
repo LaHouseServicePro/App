@@ -51,9 +51,36 @@ td .nt{display:block;color:var(--mute);font-size:12.5px;margin-top:2px;font-weig
 .sb ul{margin:6px 0 0 18px;line-height:1.6;color:#ddd}
 .x{position:absolute;top:10px;right:10px;width:42px;height:42px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:20px;cursor:pointer}
 @media(min-width:700px){.sh{align-items:center}.sb{border-radius:20px}}
+.hero{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:14px 0}
+.bar{height:8px;background:#222;border-radius:99px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--pink),var(--yel));border-radius:99px}
+.mod{width:100%;display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:8px;text-align:left;cursor:pointer}
+.mod .mn{width:38px;height:38px;border-radius:50%;background:#26202e;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.mod .mb{flex:1}.mod .mb b{display:block;font-size:15.5px}.mod .ar{color:var(--mute);font-size:22px}
+.mod.ex{border-color:#7a6a00}.mod.lock{opacity:.5}
+.ok{color:#5fe39a;font-weight:700;font-size:13px}.pend{color:var(--yel);font-weight:700;font-size:13px}.mutd{color:var(--mute);font-size:13px}
+.btn2{display:flex;align-items:center;justify-content:center;width:100%;min-height:50px;border-radius:14px;border:1px solid var(--line);background:#1b1b1b;font-weight:800;font-size:15px;margin-top:12px;cursor:pointer}
+.btn2.pk{background:var(--pink);border-color:var(--pink)}.btn2[disabled]{opacity:.4}
+.lhd{display:flex;align-items:center;gap:10px;margin-top:14px}.lhd .back{border:1px solid var(--line);background:#1b1b1b;cursor:pointer}
+.lt b{display:block}.lt span{color:var(--mute);font-size:13px}
+.lcard{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:12px}
+.lcard img{width:100%;max-height:46vh;object-fit:cover;display:block;background:#222}
+.lcard .in{padding:16px}.lcard h3,.qq h3,.res h3{font-family:Anton,sans-serif;font-weight:400;text-transform:uppercase;font-size:24px;letter-spacing:.02em}
+.lcard p{color:#ddd;line-height:1.5;margin-top:10px}.lcard .k{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--pink);margin-top:14px}
+.lcard ul{margin:6px 0 0 18px;line-height:1.6;color:#ddd}.sm2{margin-top:4px!important}
+.lk{color:var(--cy)!important;font-weight:700}
+.pr{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.pr div{background:#1d1d1d;border-radius:12px;padding:10px;text-align:center}.pr small{display:block;color:var(--mute);font-size:12px}.pr b{font-size:18px}
+.nav2{display:flex;gap:10px}.nav2 .btn2{flex:1}
+.qq{margin-top:12px}.qq img{width:100%;max-height:38vh;object-fit:cover;border-radius:16px;display:block;margin-bottom:12px}
+.qq h3{font-family:Inter,sans-serif;text-transform:none;font-weight:800;font-size:19px;line-height:1.35;margin-bottom:6px}
+.opt{display:block;width:100%;text-align:left;min-height:52px;border-radius:14px;border:1px solid var(--line);background:#161616;padding:12px 14px;margin-top:8px;font-weight:600;font-size:15.5px;cursor:pointer}
+.opt.good{background:#12351f;border-color:#2c7a4b;color:#9ff0c0}.opt.bad{background:#3a1220;border-color:#8a2a48;color:#ffb3cb}
+.fb{border-radius:14px;padding:12px 14px;margin-top:12px}.fb.g{background:#0f2a1a}.fb.b{background:#2a0f18}.fb p{color:#ddd;margin-top:4px;line-height:1.45}
+.res{text-align:center;margin-top:30px}.res .big{font-size:22px;font-weight:800;margin:8px 0}
+.top.mini .fl{display:none}
+
 </style></head><body>
-<div class="top">
- <div class="hd"><a class="back" href="../">‹ Inicio</a><h1>Conocimiento de carta<small>LA HOUSE</small></h1></div>
+<div class="top" id="top">
+ <div class="hd"><a class="back" href="../">‹ Inicio</a><h1>Aprende la carta<small>LA HOUSE</small></h1></div>
  <div class="tabs" role="tablist"><button role="tab" data-t="coc">🍹 Cócteles</button><button role="tab" data-t="food">🍽️ Comida</button><button role="tab" data-t="lic">🥃 Licor</button></div>
  <div class="fl"><input class="q" id="q" type="search" placeholder="Buscar…" aria-label="Buscar"><div class="sd" role="group" aria-label="Sede"><button data-s="all">Todas</button><button data-s="provenza">Provenza</button><button data-s="barrio">Barrio</button></div></div>
 </div>
@@ -68,6 +95,144 @@ const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;"
 const norm=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
 let T=(()=>{try{return sessionStorage.getItem("ct")||"coc"}catch(e){return "coc"}})(),S="all",Q="";
 const okS=x=>S==="all"||x.sedes.includes(S);
+/* ===== Aprender la carta: módulos, tarjetas y quiz ===== */
+const TEMAS=[["coc","🍹 Cócteles"],["food","🍽️ Comida"],["lic","🥃 Licor"]];
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=(a,n)=>shuf(a).slice(0,n);
+const uniq=a=>[...new Set(a)];
+const slugM=s=>norm(s).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+
+/* --- armar módulos --- */
+const LICI=[];DATA.lic.forEach(c=>c.items.forEach(x=>LICI.push(Object.assign({},x,{id:"l-"+slugM(x.n),cat:c.cat,info:c.info}))));
+const POOL={coc:DATA.coc,food:DATA.food,lic:LICI};
+const MODS=[];
+TEMAS.forEach(([t])=>{
+  const items=POOL[t];const cats=uniq(items.map(x=>x.cat));
+  cats.forEach(c=>{const L=items.filter(x=>x.cat===c);
+    const parts=L.length>12?Math.ceil(L.length/8):1;const per=Math.ceil(L.length/parts);
+    for(let p=0;p<parts;p++){const sl=L.slice(p*per,(p+1)*per);
+      MODS.push({id:t+"-"+slugM(c)+(parts>1?"-"+(p+1):""),t,name:c+(parts>1?" "+(p+1):""),items:sl,info:t==="lic"?(DATA.lic.find(z=>z.cat===c)||{}).info:""})}});
+});
+const EXAMS=TEMAS.map(([t,n])=>({id:t+"-examen",t,name:"Examen final · "+n.split(" ").slice(1).join(" "),exam:true,items:POOL[t]}));
+const modById=id=>MODS.find(m=>m.id===id)||EXAMS.find(m=>m.id===id);
+
+/* --- progreso --- */
+let PROG={};try{PROG=JSON.parse(localStorage.getItem("lh_carta")||"{}")}catch(e){}
+const save=()=>{try{localStorage.setItem("lh_carta",JSON.stringify(PROG))}catch(e){};if(window.LHSYNC)window.LHSYNC(PROG)};
+const P=id=>PROG[id]||(PROG[id]={});
+window.LHPROG=p=>{/* merge remoto */for(const k in p){const a=PROG[k]||{},b=p[k]||{};PROG[k]={seen:a.seen||b.seen,done:a.done||b.done,best:Math.max(a.best||0,b.best||0),tries:Math.max(a.tries||0,b.tries||0),last:[a.last||"",b.last||""].sort().pop()}}
+  try{localStorage.setItem("lh_carta",JSON.stringify(PROG))}catch(e){};if(VIEW==="home")render()};
+window.LHRESET=uid=>{try{if(localStorage.getItem("lh_carta_uid")!==uid){localStorage.setItem("lh_carta_uid",uid);localStorage.removeItem("lh_carta");PROG={};if(VIEW==="home"&&!BROWSE)render()}}catch(e){}};
+window.LHMODS=()=>({total:MODS.length,names:Object.fromEntries(MODS.concat(EXAMS).map(m=>[m.id,m.name]))});
+
+/* --- preguntas --- */
+const SED={provenza:"Solo Provenza",barrio:"Solo El Barrio",both:"En las dos sedes"};
+const sedeAns=x=>x.sedes.length===2?SED.both:SED[x.sedes[0]];
+const cap=s=>String(s).charAt(0).toUpperCase()+String(s).slice(1);
+function opts(correct,wrong){const w=pick(uniq(wrong.filter(v=>v&&v!==correct)),3);if(w.length<2)return null;return shuf([correct,...w])}
+const capQ=q=>{q.o=q.o.map(cap);q.a=cap(q.a);return q};
+const parts=d=>uniq(String(d||"").replace(/\(.*?\)/g,"").split(/,| y | con |\.|acompañad[oa]s? de|bañad[oa]s? en/i).map(s=>s.trim().replace(/^(de|en|la|el|los|las)\s+/i,"")).filter(s=>s.length>2&&s.length<40&&!/^\d/.test(s)));
+function genQ(x,t,pool){
+  const Q=[];const others=pool.filter(y=>y.id!==x.id);
+  if(t==="coc"||t==="food"){
+    if(x.img){const o=opts(x.n,others.map(y=>y.n));if(o)Q.push({img:x.img,q:"¿Qué es esto?",o,a:x.n,why:`Es ${x.n}.`})}
+    if(t==="coc"){
+      const mine=x.ins||[];const all=uniq(others.flatMap(y=>y.ins||[])).filter(i=>!mine.includes(i));
+      if(mine.length){const c=pick(mine,1)[0];const o=opts(c,all);if(o)Q.push({q:`¿Cuál de estos ingredientes lleva «${x.n}»?`,o,a:c,why:`«${x.n}» lleva: ${mine.join(", ")}.`})}
+      if(x.vaso){const o=opts(x.vaso,uniq(POOL.coc.map(y=>y.vaso)));if(o)Q.push({q:`¿En qué se sirve «${x.n}»?`,o,a:x.vaso,why:`Se sirve en ${x.vaso.toLowerCase()}.`})}
+      if(x.d){const o=opts(x.n,others.filter(y=>norm(y.d)!==norm(x.d)).map(y=>y.n));if(o)Q.push({q:`Un cliente pregunta por un cóctel con: «${x.d}» ¿Cuál es?`,o,a:x.n,why:`Es «${x.n}».`})}
+    }else{
+      const mine=parts(x.d);const all=uniq(others.flatMap(y=>parts(y.d))).filter(p=>!mine.some(m=>norm(m)===norm(p)));
+      if(mine.length){const c=pick(mine,1)[0];const o=opts(c,all);if(o)Q.push({q:`¿Qué lleva ${x.n}?`,o,a:c,why:`${x.n}: ${x.d}`})}
+      if(x.d){const o=opts(x.n,others.filter(y=>norm(y.d)!==norm(x.d)).map(y=>y.n));if(o)Q.push({q:`¿Qué plato es? «${x.d}»`,o,a:x.n,why:`Es ${x.n}.`})}
+    }
+    if(x.sedes.length===1||Math.random()<.3)Q.push({q:`¿Dónde se vende ${x.n}?`,o:[SED.both,SED.provenza,SED.barrio],a:sedeAns(x),why:`${x.n}: ${sedeAns(x).toLowerCase()}.`});
+  }else{
+    const pr=(k,lab)=>{if(x[k]&&x[k]!=="-"){const o=opts(x[k],LICI.map(y=>y[k]).filter(v=>v&&v!=="-"));if(o)Q.push({q:`¿Cuánto cuesta ${lab} de ${x.n} (horario bar)?`,o,a:x[k],why:`${x.n}: botella ${x.b}, media ${x.m}, shot ${x.s}.`})}};
+    pr("s","el shot");pr("b","la botella");if(x.m!=="-")pr("m","la media");
+    const o=opts(x.cat,uniq(DATA.lic.map(c=>c.cat)));if(o)Q.push({q:`¿Qué tipo de licor es ${x.n}?`,o,a:x.cat,why:`${x.n} es ${x.cat.toLowerCase()}.${x.nota?" "+x.nota:""}`});
+    const pres=[x.b!=="-"?"Botella":null,x.m!=="-"?"Media":null,x.s!=="-"?"Shot":null].filter(Boolean);
+    if(pres.length&&pres.length<3){const no=["Botella","Media","Shot"].find(p=>!pres.includes(p));Q.push({q:`¿${x.n} se vende en ${no.toLowerCase()}?`,o:["Sí","No"],a:"No",why:`${x.n} se vende en: ${pres.join(", ").toLowerCase()}.`})}
+    if(x.nota&&/Red Bull/.test(x.nota))Q.push({q:`¿Qué incluye toda botella de ${x.n}?`,o:shuf(["Dos latas de Red Bull","Una jarra de jugo","Dos sodas","Nada adicional"]),a:"Dos latas de Red Bull",why:x.nota});
+  }
+  return Q.map(capQ);
+}
+function buildQuiz(m){
+  const pool=POOL[m.t];const n=m.exam?15:Math.min(10,Math.max(5,m.items.length*2));
+  let all=[];shuf(m.items).forEach(x=>{const q=genQ(x,m.t,pool);all.push(shuf(q))});
+  const out=[];let round=0;while(out.length<n&&all.some(a=>a.length)){all.forEach(a=>{if(out.length<n&&a.length)out.push(a.shift())});round++}
+  return shuf(out);
+}
+
+/* --- vistas --- */
+let VIEW="home",CUR=null,IDX=0,QZ=null,QI=0,OK=0,ANS=null,BROWSE=false;
+function pct(m){const p=PROG[m.id]||{};return p.best||0}
+function homeHTML(){
+  const ms=MODS.filter(m=>m.t===T);const done=ms.filter(m=>(PROG[m.id]||{}).done).length;const ex=EXAMS.find(e=>e.t===T);const exOpen=done===ms.length;
+  return `<div class="hero"><div><b>${done} de ${ms.length}</b> módulos aprobados</div><div class="bar"><i style="width:${Math.round(done/ms.length*100)}%"></i></div>
+  <p class="note" style="margin:8px 0 0">Cada módulo: primero estudias las tarjetas y luego respondes el quiz. Apruebas con 80%.</p></div>
+  ${ms.map((m,i)=>{const p=PROG[m.id]||{};const st=p.done?`<span class="ok">✓ ${p.best}%</span>`:p.tries?`<span class="pend">${p.best}% · repite</span>`:p.seen?`<span class="pend">Falta el quiz</span>`:`<span class="mutd">${m.items.length} tarjetas</span>`;
+    return `<button class="mod" data-m="${m.id}"><div class="mn">${i+1}</div><div class="mb"><b>${esc(m.name)}</b>${st}</div><div class="ar">›</div></button>`}).join("")}
+  <button class="mod ex ${exOpen?"":"lock"}" data-m="${ex.id}" ${exOpen?"":"disabled"}><div class="mn">🏆</div><div class="mb"><b>${esc(ex.name)}</b>${(PROG[ex.id]||{}).done?`<span class="ok">✓ ${(PROG[ex.id]||{}).best}%</span>`:exOpen?`<span class="pend">15 preguntas de todo el tema</span>`:`<span class="mutd">Se abre al aprobar todos los módulos</span>`}</div><div class="ar">›</div></button>
+  <button class="btn2" id="toBrowse">Ver la carta completa</button>`;
+}
+function cardHTML(m,x){
+  let h=`<div class="lcard">`;
+  if(x.img)h+=`<img src="${x.img}" alt="">`;
+  h+=`<div class="in"><h3>${esc(x.n)}</h3><div><span class="tag">${x.sedes.length===2?"Provenza y El Barrio":"Solo "+SEDE[x.sedes[0]]}</span></div>`;
+  if(m.t==="lic"){h+=`<p class="lk">${esc(x.cat)}</p>${x.nota?`<p>${esc(x.nota)}</p>`:""}
+    <div class="pr"><div><small>Botella</small><b>${esc(x.b)}</b></div><div><small>Media</small><b>${esc(x.m)}</b></div><div><small>Shot</small><b>${esc(x.s)}</b></div></div>${x.l?`<p class="note">Litro: ${esc(x.l)}</p>`:""}<p class="note">Precios en horario bar.</p>`}
+  else{if(x.d)h+=`<p>${esc(x.d)}</p>`;
+    if(x.ins&&x.ins.length)h+=`<div class="k">Lleva</div><ul>${x.ins.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>`;
+    if(x.op&&x.op.length)h+=`<div class="k">Opciones</div><p class="sm2">${x.op.map(esc).join(" · ")}</p>`;
+    if(x.vaso)h+=`<div class="k">Se sirve en</div><p class="sm2">${esc(x.vaso)}</p>`;
+    if(x.g)h+=`<div class="k">Decoración</div><p class="sm2">${esc(x.g)}</p>`}
+  return h+`</div></div>`;
+}
+function lessonHTML(){
+  const m=CUR,x=m.items[IDX],last=IDX===m.items.length-1;
+  return `<div class="lhd"><button class="back" id="lBack">‹ Módulos</button><div class="lt"><b>${esc(m.name)}</b><span>Tarjeta ${IDX+1} de ${m.items.length}</span></div></div>
+  <div class="bar"><i style="width:${Math.round((IDX+1)/m.items.length*100)}%"></i></div>
+  ${IDX===0&&m.info?`<p class="note" style="margin-top:10px">💡 ${esc(m.info)}</p>`:""}
+  ${cardHTML(m,x)}
+  <div class="nav2"><button class="btn2" id="lPrev" ${IDX?"":"disabled"}>‹ Anterior</button>${last?`<button class="btn2 pk" id="lQuiz">Hacer el quiz ›</button>`:`<button class="btn2 pk" id="lNext">Siguiente ›</button>`}</div>`;
+}
+function quizHTML(){
+  if(QI>=QZ.length){const sc=Math.round(OK/QZ.length*100),pass=sc>=80;
+    return `<div class="res"><div style="font-size:64px">${pass?"🎉":"💪"}</div><h3>${pass?"¡Aprobado!":"Casi"}</h3><p class="big">${OK} de ${QZ.length} · ${sc}%</p>
+    <p class="note">${pass?"Este módulo queda aprobado.":"Necesitas 80% para aprobar. Repasa las tarjetas y vuelve a intentarlo."}</p>
+    ${pass?"":`<button class="btn2" id="rStudy">Repasar tarjetas</button><button class="btn2 pk" id="rAgain">Intentar de nuevo</button>`}
+    <button class="btn2 ${pass?"pk":""}" id="rHome">Volver a los módulos</button></div>`}
+  const q=QZ[QI];
+  return `<div class="lhd"><button class="back" id="qBack">‹ Salir</button><div class="lt"><b>${esc(CUR.name)}</b><span>Pregunta ${QI+1} de ${QZ.length}</span></div></div>
+  <div class="bar"><i style="width:${Math.round(QI/QZ.length*100)}%"></i></div>
+  <div class="qq">${q.img?`<img src="${q.img}" alt="">`:""}<h3>${esc(q.q)}</h3>
+  ${q.o.map((o,i)=>{let c="";if(ANS!==null){if(o===q.a)c="good";else if(i===ANS)c="bad"}return `<button class="opt ${c}" data-i="${i}" ${ANS!==null?"disabled":""}>${esc(o)}</button>`}).join("")}
+  ${ANS!==null?`<div class="fb ${q.o[ANS]===q.a?"g":"b"}"><b>${q.o[ANS]===q.a?"✓ ¡Correcto!":"✗ No es así"}</b><p>${esc(q.why)}</p></div><button class="btn2 pk" id="qNext">${QI===QZ.length-1?"Ver resultado":"Siguiente ›"}</button>`:""}</div>`;
+}
+function startQuiz(){QZ=buildQuiz(CUR);QI=0;OK=0;ANS=null;VIEW="quiz";render();scrollTo(0,0)}
+function finishQuiz(){const sc=Math.round(OK/QZ.length*100);const p=P(CUR.id);p.tries=(p.tries||0)+1;p.best=Math.max(p.best||0,sc);if(sc>=80)p.done=true;p.last=new Date().toISOString();save()}
+function bindLearn(){
+  const m=$("m");
+  m.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{CUR=modById(b.dataset.m);if(CUR.exam){startQuiz();return}IDX=0;VIEW="lesson";render();scrollTo(0,0)});
+  const on=(id,f)=>{const e=$(id);if(e)e.onclick=f};
+  on("toBrowse",()=>{BROWSE=true;render();scrollTo(0,0)});
+  on("lBack",()=>{VIEW="home";render()});
+  on("lPrev",()=>{IDX--;render();scrollTo(0,0)});
+  on("lNext",()=>{IDX++;render();scrollTo(0,0)});
+  on("lQuiz",()=>{const p=P(CUR.id);if(!p.seen){p.seen=true;p.last=new Date().toISOString();save()}startQuiz()});
+  on("qBack",()=>{if(confirm("¿Salir del quiz? No se guarda este intento.")){VIEW="home";render()}});
+  m.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ANS=+b.dataset.i;if(QZ[QI].o[ANS]===QZ[QI].a)OK++;render()});
+  on("qNext",()=>{QI++;ANS=null;if(QI>=QZ.length)finishQuiz();render();scrollTo(0,0)});
+  on("rAgain",startQuiz);
+  on("rStudy",()=>{IDX=0;VIEW="lesson";render();scrollTo(0,0)});
+  on("rHome",()=>{VIEW="home";render();scrollTo(0,0)});
+  // swipe en tarjetas
+  const lc=m.querySelector(".lcard");if(lc){let x0=null;lc.addEventListener("touchstart",e=>{x0=e.touches[0].clientX},{passive:true});
+    lc.addEventListener("touchend",e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)<60)return;
+      if(dx<0&&IDX<CUR.items.length-1){IDX++;render()}else if(dx>0&&IDX>0){IDX--;render()}},{passive:true})}
+}
+
 const sedeTag=x=>x.sedes.length===1?`<span class="tag">Solo ${SEDE[x.sedes[0]]}</span>`:"";
 function grid(list,key){
   const cats=[];list.forEach(x=>{if(!cats.includes(x.cat))cats.push(x.cat)});
@@ -77,7 +242,7 @@ function priceNote(){
   const ss=S==="all"?["provenza","barrio"]:[S];
   return `<p class="note">Los precios están en la carta digital: ${ss.map(s=>`${SEDE[s]} <a href="${CARTAS[s][0][1]}" target="_blank" rel="noopener">Bar</a> · <a href="${CARTAS[s][1][1]}" target="_blank" rel="noopener">Disco</a>`).join(" &nbsp;|&nbsp; ")}</p>`;
 }
-function render(){
+function renderBrowse(){
   document.querySelectorAll("[data-t]").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===T));
   document.querySelectorAll("[data-s]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===S));
   const q=norm(Q);let h="";
@@ -93,7 +258,7 @@ function render(){
       ${L.map(x=>`<tr><td><b>${esc(x.n)}</b>${x.sedes.length===1?` <span class="only">· Solo ${SEDE[x.sedes[0]]}</span>`:""}${x.nota||x.l?`<span class="nt">${esc(x.nota)}${x.l?` Litro: ${esc(x.l)}.`:""}</span>`:""}</td><td>${esc(x.b)}</td><td>${esc(x.m)}</td><td>${esc(x.s)}</td></tr>`).join("")}</tbody></table></div>`});
     if(!any)h+=`<p class="empty">No hay resultados.</p>`;
   }
-  $("m").innerHTML=h;
+  $("m").innerHTML=`<button class="btn2" id="toLearn" style="margin-top:12px">‹ Volver a los módulos</button>`+h;$("toLearn").onclick=()=>{BROWSE=false;render();scrollTo(0,0)};
 }
 function openIt(key){
   const [k,id]=key.split(":");const x=DATA[k].find(y=>y.id===id);if(!x)return;
@@ -111,16 +276,34 @@ function openIt(key){
 function close(){$("sh").classList.remove("on");document.body.style.overflow=""}
 $("sh").onclick=e=>{if(e.target.id==="sh")close()};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")close()});
-$("m").onclick=e=>{const b=e.target.closest("[data-o]");if(b)openIt(b.dataset.o)};
-document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{T=b.dataset.t;try{sessionStorage.setItem("ct",T)}catch(e){}render();scrollTo(0,0)});
+$("m").addEventListener("click",e=>{const b=e.target.closest("[data-o]");if(b)openIt(b.dataset.o)});
+document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{T=b.dataset.t;VIEW="home";try{sessionStorage.setItem("ct",T)}catch(e){}render();scrollTo(0,0)});
 document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{S=b.dataset.s;render()});
 $("q").oninput=e=>{Q=e.target.value;render()};
+function render(){
+  $("top").classList.toggle("mini",!BROWSE);
+  const tb=document.querySelector(".tabs");tb.style.display=(BROWSE||VIEW==="home")?"":"none";
+  if(BROWSE){renderBrowse();return}
+  document.querySelectorAll("[data-t]").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===T));
+  $("m").innerHTML=VIEW==="lesson"?lessonHTML():VIEW==="quiz"?quizHTML():homeHTML();bindLearn();
+}
 render();
 </script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,doc,getDoc,setDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const fb=initializeApp({"apiKey": "AIzaSyBYALdajSTvkyBiKIQobsQyNLhapFUYINo", "authDomain": "la-house-service-pro.firebaseapp.com", "projectId": "la-house-service-pro", "storageBucket": "la-house-service-pro.firebasestorage.app", "messagingSenderId": "49435128726", "appId": "1:49435128726:web:0978e5ca2fa46a5ee7a3b7"});
-onAuthStateChanged(getAuth(fb),u=>{if(!u)location.replace("../")});
+const db=getFirestore(fb);
+onAuthStateChanged(getAuth(fb),async u=>{if(!u){location.replace("../");return}
+  window.LHRESET(u.uid);
+  let name="",role="";try{const s=await getDoc(doc(db,"staff",u.uid));if(s.exists()){name=s.data().name||"";role=s.data().role||""}}catch(e){}
+  if(!name&&String(u.email||"").toLowerCase()==="machado.rarm@gmail.com")name="Administrador";
+  try{const p=await getDoc(doc(db,"carta_progreso",u.uid));if(p.exists())window.LHPROG(p.data().mods||{})}catch(e){}
+  let tm=null;window.LHSYNC=mods=>{clearTimeout(tm);tm=setTimeout(()=>{const M=window.LHMODS();const ids=Object.keys(M.names).filter(k=>!k.endsWith("-examen"));
+    const done=ids.filter(k=>mods[k]&&mods[k].done).length;
+    setDoc(doc(db,"carta_progreso",u.uid),{name,role,mods,mn:Object.fromEntries(Object.keys(mods).map(k=>[k,M.names[k]||k])),total:M.total,done,last:new Date().toISOString()}).catch(()=>{})},800)};
+  try{if(localStorage.getItem("lh_carta"))window.LHSYNC(JSON.parse(localStorage.getItem("lh_carta")))}catch(e){}
+});
 </script>
 </body></html>
