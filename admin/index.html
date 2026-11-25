@@ -105,7 +105,7 @@ function loginForm(msg){
 function blocked(t){gate(`<div style="font-size:48px">🚫</div><h2>${esc(t)}</h2><p class="mut">Esta app es solo para administradores.</p><button class="btn" id="o2">Salir</button>`);$("o2").onclick=()=>signOut(auth).then(()=>location.reload())}
 
 /* ---- datos ---- */
-let STAFF=[],VIS={sp:{},emp:{},bar:{}},FILTER="all",Q="",LAST=null,seen=null;
+let ME=null,STAFF=[],VIS={sp:{},emp:{},bar:{}},FILTER="all",Q="",LAST=null,seen=null;
 const has=(s,a)=>a.k==="sp"?s.active===true:s[a.flag]===true;
 const isReq=s=>s.pending===true&&!APPS.some(a=>has(s,a));
 const pideOf=s=>PIDE[s.pide]||"sp";
@@ -166,7 +166,8 @@ function render(){
   ${people.map(s=>`<div class="card" id="p-${esc(s.id)}" ${LAST===s.id?'style="outline:3px solid #25d366"':""}><div class="h"><div><b>${esc(s.name)}</b>${s.admin?' <span class="badge" style="background:var(--pur)">Admin</span>':""}
     <div class="mut sm">${esc(roleName(s.role))} · usuario <b style="color:#fff">${esc(s.user||"")}</b>${s.pass?` · clave <b style="color:#fff">${esc(s.pass)}</b>`:""}</div></div></div>
     ${chips(s,false)}${visLine(s)}
-    ${APPS.some(a=>has(s,a))&&s.user?`<div class="row" style="margin-top:10px"><a class="btn wa sm" href="${waAccess(s)}" target="_blank" rel="noopener">Enviar accesos por WhatsApp</a></div>`:""}</div>`).join("")||'<p class="mut">Nadie con ese filtro.</p>'}
+    <div class="row" style="margin-top:10px">${APPS.some(a=>has(s,a))&&s.user?`<a class="btn wa sm" href="${waAccess(s)}" target="_blank" rel="noopener">Enviar accesos por WhatsApp</a>`:""}
+    ${ME&&s.id===ME?"":`<button class="btn sm" data-adm="${esc(s.id)}" style="${s.admin?"":"border-color:var(--pur);color:#d9a8ff"}">${s.admin?"Quitar administrador":"Hacer administrador"}</button>`}</div></div>`).join("")||'<p class="mut">Nadie con ese filtro.</p>'}
 
   <h2>Crear usuario</h2>
   <form class="card" id="nf"><label for="nn">Nombre completo</label><input class="tx" id="nn" required placeholder="Ej.: Juan Pérez">
@@ -199,6 +200,10 @@ function bind(){
     if(!Object.values(want).some(Boolean)){toast("Elige al menos una app.");return}
     b.disabled=true;try{await setApps(id,want);LAST=id;FILTER="all";render();toast("Aprobado ✓");const el=$("p-"+id);if(el)el.scrollIntoView({behavior:"smooth",block:"center"})}
     catch(e){b.disabled=false;toast("No se pudo guardar. Intenta de nuevo.")}});
+  m.querySelectorAll("[data-adm]").forEach(b=>b.onclick=async()=>{const id=b.dataset.adm,s=STAFF.find(x=>x.id===id);if(!s)return;const on=!s.admin;
+    if(!confirm(on?`¿Hacer administrador a ${s.name}? Podrá entrar a Accesos, aprobar solicitudes y dar o quitar apps a todo el equipo. También queda con Servicio Pro.`:`¿Quitarle el rol de administrador a ${s.name}?`))return;
+    try{const r=doc(db,"staff",id);const d=await getDoc(r);const nd=Object.assign({},d.data(),{admin:on});if(on){nd.active=true;nd.pending=false;await setDoc(doc(db,"team",id),{inactive:false},{merge:true})}
+      await setDoc(r,nd);Object.assign(s,nd);LAST=id;render();toast(on?"Ahora es administrador ✓":"Ya no es administrador")}catch(e){toast("No se pudo guardar.")}});
   m.querySelectorAll("[data-no]").forEach(b=>b.onclick=async()=>{if(!confirm("¿Rechazar esta solicitud?"))return;const id=b.dataset.no;
     try{const r=doc(db,"staff",id);const s=await getDoc(r);await setDoc(r,Object.assign({},s.data(),{pending:false,active:false}));const x=STAFF.find(y=>y.id===id);if(x){x.pending=false;x.active=false}render();toast("Solicitud rechazada")}
     catch(e){toast("No se pudo guardar.")}});
@@ -247,6 +252,7 @@ async function start(user){
   if(started)return;started=true;
   gate(`<p class="mut">Cargando…</p>`);
   let ok=ADMIN_EMAILS.includes(String(user.email||"").toLowerCase());
+  ME=user.uid;
   if(!ok){try{const s=await getDoc(doc(db,"staff",user.uid));const d=s.exists()?s.data():null;ok=!!(d&&d.admin===true&&d.active===true)}catch(e){}}
   if(!ok){started=false;blocked("No tienes acceso");return}
   await loadVis();
