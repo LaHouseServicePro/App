@@ -195,8 +195,7 @@ function loginForm(msg){
   show(`<p>Las recetas de barra de El Barrio y Provenza.</p><form id="lgF"><label for="lgU">Usuario</label><input class="tx" id="lgU" autocomplete="username" autocapitalize="none" placeholder="Ej: ana.lopez">
   <label for="lgP">Clave</label><input class="tx" id="lgP" type="password" autocomplete="current-password">
   <button type="submit" id="lgGo">Entrar</button><div class="err" id="lgE" role="status">${esc(msg||"")}</div></form>
-  <div style="margin-top:22px;border-top:1px solid var(--line);padding-top:16px"><b>¿Primera vez?</b><p style="font-size:14px">Crea tu cuenta y tu líder te aprueba.</p><button class="sec" id="lgNew">Crear mi cuenta</button></div>`);
-  document.getElementById("lgNew").onclick=()=>signupForm();
+  <p style="font-size:14px;margin-top:18px">¿No tienes usuario? Pídele a tu líder el link del equipo.</p>`);
   document.getElementById("lgF").onsubmit=async ev=>{ev.preventDefault();const u=document.getElementById("lgU").value,p=document.getElementById("lgP").value,e=document.getElementById("lgE");
     if(!u||!p){e.textContent="Escribe tu usuario y tu clave.";return}
     e.textContent="Entrando…";document.getElementById("lgGo").disabled=true;
@@ -402,8 +401,6 @@ async function start(user){
       setDoc(vr,{last:t,lastFicha:id,fichas:{[id]:{n:increment(1),last:t}}},{merge:true}).catch(()=>{})}}
   if(isAdmin){await backfill();await loadStaff().catch(()=>{});
     window.LHACC=()=>{location.href=HUB};
-    ["tacc","accb"].forEach(i=>{const el=document.getElementById(i);if(el)el.hidden=false});
-    const ab=document.getElementById("accb");if(ab){const np=STAFF.filter(s=>s.barra!==true&&s.pending===true&&s.pide==="barra").length;ab.textContent=np?"Equipo · "+np:"Equipo"}
     const tl=document.querySelector("#tacc");if(tl)tl.lastChild.textContent="Equipo";}
 }
 onAuthStateChanged(auth,u=>{if(u)start(u);else{started=false;loginForm()}});

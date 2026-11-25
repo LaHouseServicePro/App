@@ -224,8 +224,7 @@ function loginForm(msg){
   <label>Usuario</label><input id="lgU" autocomplete="username" autocapitalize="none" placeholder="Ej: ana.lopez">
   <label>Clave</label><input id="lgP" type="password" autocomplete="current-password">
   <button class="btn gold" id="lgGo">Entrar</button><div class="err" id="lgE">${esc(msg||"")}</div></div>
-  <div class="card" style="text-align:center"><b>¿Primera vez?</b><p class="mut" style="margin:4px 0 10px">Crea tu cuenta y tu líder te aprueba.</p><button class="btn" id="lgNew">Crear mi cuenta</button></div>`);
-  document.getElementById("lgNew").onclick=()=>signupForm();
+  <p class="mut" style="text-align:center;margin-top:14px">¿No tienes usuario? Pídele a tu líder el link del equipo.</p>`);
   const go=async()=>{const u=document.getElementById("lgU").value,p=document.getElementById("lgP").value,e=document.getElementById("lgE");
     if(!u||!p){e.textContent="Escribe tu usuario y tu clave.";return}
     e.textContent="Entrando…";document.getElementById("lgGo").disabled=true;
@@ -387,9 +386,9 @@ async function start(user){
   };
   window.claude=makeAdapter(user.uid,isAdmin,staff&&staff.name);
   if(!isOwner&&staff){try{setDoc(doc(db,"servicepro_visitas",user.uid),{name:staff.name||"",role:staff.role||"",last:new Date().toISOString(),n:increment(1)},{merge:true}).catch(()=>{})}catch(_){}}
-  if(isAdmin){try{lhVisitasBtn()}catch(_){}try{lhWatchPending()}catch(_){}}
   gate.style.display="none";gate.innerHTML="";document.getElementById("nav").style.display="";
   const s=document.createElement("script");s.text=c.js;document.body.appendChild(s);
+  try{const og=window.go;if(typeof og==="function")window.go=function(v){if(v==="access"){location.href=location.origin+"/App/admin/";return}return og.apply(this,arguments)}}catch(_){}
 }
 
 
