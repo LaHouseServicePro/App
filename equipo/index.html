@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Equipo La House</title><meta name="theme-color" content="#0B0B0B">
+<title>La House</title><meta name="theme-color" content="#0B0B0B">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="La House">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap">
@@ -29,7 +29,7 @@ label{display:block;text-align:left;font-weight:700;font-size:14px;margin:12px 0
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,doc,getDoc,setDoc,onSnapshot} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,doc,getDoc,setDoc,onSnapshot,collection} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const CONFIG={"apiKey": "AIzaSyBYALdajSTvkyBiKIQobsQyNLhapFUYINo", "authDomain": "la-house-service-pro.firebaseapp.com", "projectId": "la-house-service-pro", "storageBucket": "la-house-service-pro.firebasestorage.app", "messagingSenderId": "49435128726", "appId": "1:49435128726:web:0978e5ca2fa46a5ee7a3b7"};
 const ADMIN_EMAILS=["machado.rarm@gmail.com"];
 const DOMAIN="staff.lahouse.app";
@@ -47,6 +47,7 @@ const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;"
 const toEmail=u=>{u=String(u||"").trim().toLowerCase();return u.includes("@")?u:u.replace(/\s+/g,"")+"@"+DOMAIN};
 const slugU=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim().replace(/\s+/g,".").replace(/[^a-z0-9._-]/g,"");
 const head=`<img class="logo" src="logo.png" alt="La House"><h1>Equipo La House</h1>`;
+let pendOff=null;
 const show=h=>{$("v").innerHTML=head+h};
 let busy=false,started=false,off=null;
 
@@ -96,9 +97,10 @@ function paint(user,s){
   const mine=APPS.filter(a=>a.has(s));
   const outB=`<button class="lnk" id="out">Cerrar sesión</button>`;
   if(mine.length){
-    show(`<h2>Hola, ${esc(String(s.name||"").split(" ")[0])} 👋</h2><p>Estas son tus apps. Entra con tu usuario <b style="color:#fff">${esc(s.user||"")}</b> y tu clave.</p>
+    show(`<h2>Hola, ${esc(String(s.name||"").split(" ")[0])} 👋</h2><p>Toca una app para entrar.</p>
     ${mine.map(a=>`<a class="app" href="${a.url}"><div class="ic" style="background:${a.bg}">${a.ic}</div><div><b>${a.name}</b><span>${a.desc}</span></div><div class="ar">›</div></a>`).join("")}
-    ${s.admin?`<a class="app" href="${B}/App/admin/" style="border-color:var(--pur)"><div class="ic" style="background:#2a1240">🔑</div><div><b>Accesos</b><span>Aprobar y dar apps al equipo</span></div><div class="ar">›</div></a>`:""}
+    ${s.admin?`<div style="margin-top:26px;text-align:left;font:400 18px Anton,sans-serif;text-transform:uppercase;letter-spacing:.03em;color:#d9a8ff">Administración</div>
+    <a class="app" href="accesos/" style="border-color:var(--pur)"><div class="ic" style="background:#2a1240">🔑</div><div><b>Control de accesos <span id="pc" style="display:none;background:var(--pink);color:#fff;border-radius:999px;font-size:12px;padding:2px 8px;margin-left:4px"></span></b><span>Solicitudes, invitar, entradas y equipo</span></div><div class="ar">›</div></a>`:""}
     <p style="font-size:13px;margin-top:18px">Guarda esta página en tu pantalla de inicio: aquí siempre verás tus apps.</p>${outB}`);
   }else if(s.pending){
     const txt=`Hola, soy ${s.name} (${roleName(s.role)}). Ya creé mi cuenta en el Equipo La House con el usuario ${s.user||""}. ¿Me apruebas el acceso? 🙏`;
@@ -111,6 +113,10 @@ function paint(user,s){
     <a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(txt)}">📲 Escribirle al líder</a>${outB}`);
   }
   $("out").onclick=()=>signOut(auth).then(()=>location.reload());
+  if(s.admin&&!pendOff){try{pendOff=onSnapshot(collection(db,"staff"),sn=>{const n=sn.docs.filter(d=>{const x=d.data();return x&&x.pending===true&&!x.active&&x.emplatado!==true&&x.barra!==true}).length;
+    const el=document.getElementById("pc");if(el){el.style.display=n?"inline":"none";el.textContent=n}
+    try{if(navigator.setAppBadge){n?navigator.setAppBadge(n):navigator.clearAppBadge()}}catch(_){}},()=>{})}catch(_){}}
+  else if(s.admin){/* repaint keeps listener */}
 }
 async function start(user){
   if(started)return;started=true;
@@ -123,4 +129,5 @@ async function start(user){
 }
 onAuthStateChanged(auth,u=>{if(u)start(u);else{started=false;if(off){off();off=null}signup()}});
 </script>
+<script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))</script>
 </body></html>

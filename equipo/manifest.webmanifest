@@ -1,9 +1,9 @@
 {
- "name": "Equipo La House",
+ "name": "La House",
  "short_name": "La House",
- "description": "Tus apps de La House",
- "start_url": "./",
- "scope": "./",
+ "description": "Las apps del equipo La House",
+ "start_url": "/App/equipo/",
+ "scope": "/",
  "display": "standalone",
  "background_color": "#0B0B0B",
  "theme_color": "#0B0B0B",
@@ -26,5 +26,6 @@
    "purpose": "maskable"
   }
  ],
- "orientation": "portrait"
+ "orientation": "portrait",
+ "id": "/App/equipo/"
 }

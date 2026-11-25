@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Control de accesos - La House</title><meta name="theme-color" content="#0B0B0B">
+<link rel="manifest" href="../manifest.webmanifest"><link rel="apple-touch-icon" href="../icon-180.png"><link rel="icon" href="../icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Accesos">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--bg:#0B0B0B;--card:#151515;--line:#2a2a2a;--ink:#f5f5f5;--mute:#a8a8a8;--pink:#E8346E;--yel:#FCF050;--cy:#73F7FB;--pur:#8A1AC9;--ok:#1f9d55}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:720px;margin:auto;padding:16px 16px 80px}
+header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+header img{height:30px}
+header h1{font-family:Anton,sans-serif;font-weight:400;font-size:20px;letter-spacing:.03em;text-transform:uppercase;line-height:1}
+header h1 small{display:block;font:600 10px Inter;letter-spacing:.18em;color:var(--cy);margin-top:4px}
+header .sp{flex:1}
+@media(max-width:480px){header img{height:24px}header h1{font-size:17px}header h1 small{display:none}header{gap:6px}header .btn.sm{padding:0 9px;font-size:13px;min-height:36px}}
+.btn{min-height:46px;border-radius:12px;border:1px solid var(--line);background:#1b1b1b;font-weight:700;padding:0 14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;color:#fff}
+.btn.pk{background:var(--pink);border-color:var(--pink)}.btn.gr{background:var(--ok);border-color:var(--ok)}.btn.wa{background:#25d366;border-color:#25d366;color:#04210f}
+.btn.sm{white-space:nowrap;min-height:38px;font-size:14px;padding:0 12px;border-radius:10px}
+h2{font-family:Anton,sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:.03em;font-size:20px;margin:26px 0 10px;color:var(--pink)}
+.mut{color:var(--mute)}.sm{font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.card.req{border-color:var(--pink)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.apps{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.ap{border:1px solid var(--line);background:#1b1b1b;border-radius:999px;padding:8px 12px;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-height:40px}
+.ap .dot{width:10px;height:10px;border-radius:50%;background:#444}
+.ap.on{background:#12351f;border-color:#2c7a4b;color:#7ef0b0}.ap.on .dot{background:#3ddc84}
+.ap[disabled]{opacity:.5}
+.vis{font-size:13px;color:var(--mute);margin-top:8px;line-height:1.5}
+.vis b{color:var(--cy);font-weight:600}
+.share{display:grid;grid-template-columns:1fr;gap:8px}
+label{display:block;font-weight:700;font-size:14px;margin:10px 0 6px}
+.tx{width:100%;min-height:48px;border-radius:10px;border:1px solid var(--line);background:#101010;color:var(--ink);font-size:16px;padding:0 12px}
+.err{color:#FF7EA6;font-weight:700;min-height:20px;margin-top:8px}
+.gate{position:fixed;inset:0;background:var(--bg);z-index:50;display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+.gate[hidden]{display:none}
+.gi{max-width:380px;width:100%;text-align:center}.gi h2{color:var(--ink);margin-top:0}.gi label{text-align:left}
+.gi .btn{width:100%;margin-top:14px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222;border:1px solid var(--line);padding:12px 16px;border-radius:12px;font-weight:700;z-index:60;display:none;max-width:90vw}
+.badge{background:var(--pink);color:#fff;border-radius:999px;font-size:12px;padding:2px 8px;margin-left:6px}
+.q{width:100%;min-height:44px;border-radius:999px;border:1px solid var(--line);background:#141414;padding:0 16px;font-size:15px;margin-bottom:10px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.tabs button{border:1px solid var(--line);background:#161616;border-radius:999px;padding:7px 12px;font-weight:700;font-size:13px;cursor:pointer}.tabs button.on{background:var(--yel);color:#111;border-color:var(--yel)}
+details summary{cursor:pointer}
+.keys input{margin-bottom:6px}
+</style></head><body>
+<div class="gate" id="gate"><div class="gi" id="gi"><p class="mut">Cargando…</p></div></div>
+<div class="wrap" id="app" hidden>
+<header><a class="btn sm" href="../" aria-label="Volver a inicio">‹ Inicio</a><h1>Accesos<small>CONTROL DEL EQUIPO</small></h1><span class="sp"></span><button class="btn sm" id="alertB">🔔 Avisos</button></header>
+<div id="main"></div>
+</div>
+<div id="toast" role="status"></div>
+<script type="module">
+import {initializeApp,deleteApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,doc,getDoc,setDoc,deleteDoc,collection,getDocs,onSnapshot} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const CONFIG={"apiKey": "AIzaSyBYALdajSTvkyBiKIQobsQyNLhapFUYINo", "authDomain": "la-house-service-pro.firebaseapp.com", "projectId": "la-house-service-pro", "storageBucket": "la-house-service-pro.firebasestorage.app", "messagingSenderId": "49435128726", "appId": "1:49435128726:web:0978e5ca2fa46a5ee7a3b7"};
+const ADMIN_EMAILS=["machado.rarm@gmail.com"];
+const DOMAIN="staff.lahouse.app";
+const BASE=location.origin;
+const APPS=[
+ {k:"sp",name:"Servicio Pro",url:BASE+"/App/",vis:"servicepro_visitas"},
+ {k:"emp",name:"Emplatado",url:BASE+"/emplatado/",vis:"emplatado_visitas",flag:"emplatado",key:"ek",ls:"lhm_k",enc:BASE+"/emplatado/contenido.enc",app:"la-house-emplatado"},
+ {k:"bar",name:"Barra",url:BASE+"/App/barra/",vis:"barra_visitas",flag:"barra",key:"bk",ls:"lhb_k",enc:BASE+"/App/barra/contenido.enc",app:"la-house-barra"}];
+const ROLES=[["sc","Asesor de servicio"],["bt","Bartender"],["co","Cocinero(a)"],["cj","Cajero(a)"],["ho","Host"],["cv","Cover"],["le","Líder de turno"]];
+const roleName=r=>{const x=ROLES.find(y=>y[0]===r);return x?x[1]:(r||"")};
+const PIDE={servicepro:"sp",emplatado:"emp",barra:"bar"};
+const JOIN=BASE+"/App/equipo/";
+const BYROLE={co:["sp","emp"],bt:["sp","bar"],le:["sp","emp","bar"]};
+
+const fb=initializeApp(CONFIG);const auth=getAuth(fb);const db=getFirestore(fb);
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const toEmail=u=>{u=String(u||"").trim().toLowerCase();return u.includes("@")?u:u.replace(/\s+/g,"")+"@"+DOMAIN};
+const slug=n=>String(n||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim().split(/\s+/).slice(0,2).join(".").replace(/[^a-z0-9.]/g,"");
+const newPass=()=>{const w=["fiesta","noche","neon","mojito","arepa","limon","house","barra","salsa","tonica"];const a=crypto.getRandomValues(new Uint32Array(2));return w[a[0]%w.length]+(1000+a[1]%9000)};
+function toast(m){const x=$("toast");x.textContent=m;x.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>x.style.display="none",3000)}
+const gate=(html)=>{$("gate").hidden=false;$("app").hidden=true;$("gi").innerHTML=html};
+const fmtWhen=iso=>{if(!iso)return "";const d=new Date(iso),n=new Date();const hm=d.toLocaleTimeString("es-CO",{hour:"numeric",minute:"2-digit"});
+  const day=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate());const dd=Math.round((day(n)-day(d))/864e5);
+  return dd===0?"hoy "+hm:dd===1?"ayer "+hm:dd<7?"hace "+dd+" días":d.toLocaleDateString("es-CO",{day:"numeric",month:"short"})};
+
+/* ---- claves de contenido (Emplatado y Barra) ---- */
+const getKey=a=>{try{return localStorage.getItem(a.ls)||""}catch(e){return ""}};
+async function checkKey(a,pass){
+  const r=await fetch(a.enc+"?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error("No encontré el contenido de "+a.name);
+  const o=await r.json();const b=x=>Uint8Array.from(atob(x),c=>c.charCodeAt(0));
+  const km=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveKey"]);
+  const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b(o.s),iterations:o.it,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["decrypt"]);
+  try{await crypto.subtle.decrypt({name:"AES-GCM",iv:b(o.iv)},key,b(o.ct))}catch(e){throw new Error("La clave de "+a.name+" no es correcta.")}
+  try{localStorage.setItem(a.ls,pass)}catch(_){}
+}
+
+/* ---- login ---- */
+function loginForm(msg){
+  gate(`<img src="../logo.png" alt="La House" style="height:44px;margin-bottom:10px"><h2>Accesos del equipo</h2><p class="mut">Solo para administradores.</p>
+  <form id="lgF"><label for="lgU">Usuario o correo</label><input class="tx" id="lgU" autocomplete="username" autocapitalize="none">
+  <label for="lgP">Clave</label><input class="tx" id="lgP" type="password" autocomplete="current-password">
+  <button class="btn pk" type="submit" id="lgGo">Entrar</button><div class="err" id="lgE">${esc(msg||"")}</div></form>`);
+  $("lgF").onsubmit=async ev=>{ev.preventDefault();const e=$("lgE");e.textContent="Entrando…";$("lgGo").disabled=true;
+    try{await signInWithEmailAndPassword(auth,toEmail($("lgU").value),$("lgP").value)}
+    catch(err){const c=err&&err.code||"";e.textContent=c.includes("too-many")?"Demasiados intentos. Espera unos minutos.":c.includes("network")?"Sin conexión a internet.":"Usuario o clave incorrectos.";$("lgGo").disabled=false}};
+}
+function blocked(t){gate(`<div style="font-size:48px">🚫</div><h2>${esc(t)}</h2><p class="mut">Esta app es solo para administradores.</p><button class="btn" id="o2">Salir</button>`);$("o2").onclick=()=>signOut(auth).then(()=>location.reload())}
+
+/* ---- datos ---- */
+let ENTN=10,ME=null,STAFF=[],VIS={sp:{},emp:{},bar:{}},FILTER="all",Q="",LAST=null,seen=null;
+const has=(s,a)=>a.k==="sp"?s.active===true:s[a.flag]===true;
+const isReq=s=>s.pending===true&&!APPS.some(a=>has(s,a));
+const pideOf=s=>PIDE[s.pide]||"sp";
+const preset=s=>s.pide==="equipo"?(BYROLE[s.role]||["sp"]):[pideOf(s)];
+
+async function loadVis(){for(const a of APPS){try{const v=await getDocs(collection(db,a.vis));VIS[a.k]={};v.docs.forEach(d=>VIS[a.k][d.id]=d.data())}catch(e){VIS[a.k]=null}}}
+
+async function setApps(id,want){
+  const r=doc(db,"staff",id);const s=await getDoc(r);const d=Object.assign({},s.data());
+  const missing=[];
+  for(const a of APPS){if(!(a.k in want))continue;const on=!!want[a.k];
+    if(a.k==="sp"){d.active=on;await setDoc(doc(db,"team",id),{inactive:!on},{merge:true})}
+    else{d[a.flag]=on;if(on){const k=getKey(a);if(k)d[a.key]=k;else missing.push(a.name)}else delete d[a.key]}}
+  d.pending=false;
+  await setDoc(r,d);
+  const x=STAFF.find(y=>y.id===id);if(x)Object.assign(x,d);
+  if(missing.length)toast("Ojo: falta la clave de contenido de "+missing.join(" y ")+" (abajo, en Claves).");
+}
+
+function waAccess(s){
+  const apps=APPS.filter(a=>has(s,a));
+  const links=apps.map(a=>`• *${a.name}*: ${a.url}`).join("\n")+`\n\nTodas tus apps en un solo lugar: ${JOIN}`;
+  const cred=s.pass?`\n\nUsuario: *${s.user}*\nClave: *${s.pass}*`:`\n\nEntra con tu usuario *${s.user}* y tu clave.`;
+  return "https://wa.me/?text="+encodeURIComponent(`Hola ${String(s.name||"").split(" ")[0]} 👋 Ya tienes acceso a las apps de La House:\n\n${links}${cred}\n\nGuárdalas en tu pantalla de inicio. Son personales, no las compartas.`);
+}
+const waJoin=()=>"https://wa.me/?text="+encodeURIComponent(`Hola 👋 Este es el link del *Equipo La House*:\n\n${JOIN}\n\nEntra, toca *Crear mi cuenta* y te apruebo el acceso a tus apps.`);
+const waInvite=a=>"https://wa.me/?text="+encodeURIComponent(`Hola 👋 Este es el link de *${a.name} - La House*:\n\n${a.url}\n\nEntra, toca *Crear mi cuenta* y yo te apruebo. Si ya tienes usuario de otra app de La House, entra con ese mismo.`);
+
+function visLine(s){const out=[];for(const a of APPS){if(!has(s,a))continue;const V=VIS[a.k];if(!V)continue;const v=V[s.id];
+  out.push(`${a.name}: ${v&&v.last?`<b>${fmtWhen(v.last)}</b> · ${v.n||1} ${(v.n||1)===1?"vez":"veces"}`:`<span style="color:#FF7EA6">nunca</span>`}`)}
+  return out.length?`<div class="vis">Última entrada — ${out.join(" · ")}</div>`:""}
+
+function chips(s,req){return `<div class="apps">${APPS.map(a=>{const on=req?preset(s).includes(a.k):has(s,a);
+  return `<button class="ap ${on?"on":""}" data-ap="${a.k}" data-id="${esc(s.id)}" aria-pressed="${on}"><span class="dot"></span>${a.name}</button>`}).join("")}</div>`}
+
+function render(){
+  const req=STAFF.filter(isReq).sort((a,b)=>String(b.created||"").localeCompare(String(a.created||"")));
+  const q=Q.toLowerCase();
+  const people=STAFF.filter(s=>!isReq(s)).filter(s=>FILTER==="all"?true:FILTER==="none"?!APPS.some(a=>has(s,a)):has(s,APPS.find(a=>a.k===FILTER)))
+    .filter(s=>!q||[s.name,s.user,roleName(s.role)].join(" ").toLowerCase().includes(q))
+    .sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));
+  const keysOk=APPS.filter(a=>a.flag).every(a=>getKey(a));
+  $("main").innerHTML=`
+  ${keysOk?"":`<div class="card" style="border-color:var(--yel)"><b>⚠️ Falta una clave de contenido.</b><p class="mut sm" style="margin-top:4px">Sin ella, las personas a las que les des Emplatado o Barra no podrán ver las recetas. Escríbela abajo, en «Claves de contenido».</p></div>`}
+  <h2>Solicitudes${req.length?`<span class="badge">${req.length}</span>`:""}</h2>
+  ${req.length?req.map(s=>`<div class="card req" id="r-${esc(s.id)}"><div class="h"><div><b>${esc(s.name)}</b><div class="mut sm">${esc(roleName(s.role))} · usuario <b style="color:#fff">${esc(s.user||"")}</b> · ${fmtWhen(s.created)}</div>
+    <div class="sm" style="margin-top:4px;color:var(--cy)">${s.pide==="equipo"?"Se registró con el link del equipo":"Se registró desde "+esc(APPS.find(a=>a.k===pideOf(s)).name)}</div></div></div>
+    <p class="sm mut" style="margin-top:10px">Elige a qué apps entra:</p>${chips(s,true)}
+    <div class="row" style="margin-top:12px"><button class="btn gr sm" data-ok="${esc(s.id)}">Aprobar</button><button class="btn sm" data-no="${esc(s.id)}">Rechazar</button></div></div>`).join("")
+    :`<p class="mut">No hay solicitudes nuevas.</p>`}
+
+  <h2>Invitar al equipo</h2>
+  <p class="mut sm" style="margin-bottom:10px">Un solo link para todos. La persona crea su cuenta, te llega el aviso y tú eliges a qué apps entra.</p>
+  <a class="btn wa" style="width:100%" href="${waJoin()}" target="_blank" rel="noopener">📲 Enviar link del equipo por WhatsApp</a>
+  <div class="row" style="margin-top:8px"><input class="tx" readonly value="${JOIN}" style="flex:1;min-height:42px;font-size:14px"><button class="btn sm" id="cpy">Copiar</button></div>
+
+  <h2>Últimas entradas</h2>
+  ${(()=>{const L=[];for(const a of APPS){const V=VIS[a.k]||{};for(const id in V){const v=V[id];if(v&&v.last){const p=STAFF.find(x=>x.id===id);L.push({n:(p&&p.name)||v.name||"—",a:a.name,t:v.last,c:v.n||1})}}}
+    L.sort((x,y)=>String(y.t).localeCompare(String(x.t)));
+    return L.length?`<div class="card" style="padding:6px 14px">${L.slice(0,ENTN).map(e=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)"><div><b>${esc(e.n)}</b><div class="mut sm">${e.a} · ${e.c} ${e.c===1?"vez":"veces"}</div></div><div class="sm" style="color:var(--cy);white-space:nowrap">${fmtWhen(e.t)}</div></div>`).join("")}</div>
+    <div class="row">${L.length>ENTN?`<button class="btn sm" id="entMore">Ver más</button>`:""}<button class="btn sm" id="entRef">Actualizar</button></div>`:`<p class="mut">Todavía no hay entradas registradas.</p>`})()}
+
+  <h2>Equipo (${STAFF.filter(s=>!isReq(s)).length})</h2>
+  <p class="mut sm" style="margin-bottom:10px">Toca una app para darle o quitarle el acceso a esa persona. Se guarda al instante.</p>
+  <input class="q" id="q" type="search" placeholder="Buscar por nombre o usuario" value="${esc(Q)}">
+  <div class="tabs">${[["all","Todos"],...APPS.map(a=>[a.k,a.name]),["none","Sin acceso"]].map(([k,n])=>`<button data-f="${k}" class="${FILTER===k?"on":""}">${n}</button>`).join("")}</div>
+  ${people.map(s=>`<div class="card" id="p-${esc(s.id)}" ${LAST===s.id?'style="outline:3px solid #25d366"':""}><div class="h"><div><b>${esc(s.name)}</b>${s.admin?' <span class="badge" style="background:var(--pur)">Admin</span>':""}
+    <div class="mut sm">${esc(roleName(s.role))} · usuario <b style="color:#fff">${esc(s.user||"")}</b>${s.pass?` · clave <b style="color:#fff">${esc(s.pass)}</b>`:""}</div></div></div>
+    ${chips(s,false)}${visLine(s)}
+    <div class="row" style="margin-top:10px">${APPS.some(a=>has(s,a))&&s.user?`<a class="btn wa sm" href="${waAccess(s)}" target="_blank" rel="noopener">Enviar accesos por WhatsApp</a>`:""}
+    ${ME&&s.id===ME?"":`<button class="btn sm" data-adm="${esc(s.id)}" style="${s.admin?"":"border-color:var(--pur);color:#d9a8ff"}">${s.admin?"Quitar administrador":"Hacer administrador"}</button><button class="btn sm" data-del="${esc(s.id)}" style="color:#FF7EA6">Eliminar</button>`}</div></div>`).join("")||'<p class="mut">Nadie con ese filtro.</p>'}
+
+  <h2>Crear usuario</h2>
+  <form class="card" id="nf"><label for="nn">Nombre completo</label><input class="tx" id="nn" required placeholder="Ej.: Juan Pérez">
+  <label for="nc">Cargo</label><select class="tx" id="nc">${ROLES.map(r=>`<option value="${r[0]}">${r[1]}</option>`).join("")}</select>
+  <label for="nu">Usuario</label><input class="tx" id="nu" required autocapitalize="none" placeholder="Se llena solo con el nombre">
+  <label for="np">Clave</label><input class="tx" id="np" required value="${newPass()}">
+  <label>Apps</label><div class="apps" id="napps">${APPS.map(a=>`<button type="button" class="ap" data-na="${a.k}" aria-pressed="false"><span class="dot"></span>${a.name}</button>`).join("")}</div>
+  <button class="btn pk" type="submit" style="width:100%;margin-top:14px">Crear usuario</button><div class="err" id="ne"></div></form>
+
+  <h2>Claves de contenido</h2>
+  <div class="card keys"><p class="mut sm" style="margin-bottom:10px">Son las claves con las que se desbloquean las recetas. Se guardan en este celular.</p>
+  ${APPS.filter(a=>a.flag).map(a=>`<label for="k-${a.k}">${a.name} ${getKey(a)?'<span style="color:#5fe39a">✓ guardada</span>':'<span style="color:#FF7EA6">falta</span>'}</label><input class="tx" id="k-${a.k}" autocomplete="off" autocapitalize="none" placeholder="${getKey(a)?"••••••••":"Escribe la clave"}">`).join("")}
+  <button class="btn sm" id="kSave" style="margin-top:8px">Guardar claves</button><div class="err" id="kE"></div></div>`;
+  bind();
+}
+
+function bind(){
+  const m=$("main");
+  $("q").oninput=e=>{Q=e.target.value;const p=e.target.selectionStart;render();const q=$("q");q.focus();try{q.setSelectionRange(p,p)}catch(_){}};
+  {const b=$("entMore");if(b)b.onclick=()=>{ENTN+=20;render()};const r=$("entRef");if(r)r.onclick=async()=>{r.disabled=true;await loadVis();render();toast("Entradas actualizadas")}}
+  {const c=$("cpy");if(c)c.onclick=async()=>{try{await navigator.clipboard.writeText(JOIN);toast("Link copiado")}catch(e){toast(JOIN)}}}
+  m.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{FILTER=b.dataset.f;render()});
+  // chips en solicitudes: solo marcan; en equipo: guardan
+  m.querySelectorAll(".ap[data-id]").forEach(b=>b.onclick=async()=>{
+    const id=b.dataset.id,s=STAFF.find(x=>x.id===id);if(!s)return;
+    if(isReq(s)){b.classList.toggle("on");b.setAttribute("aria-pressed",b.classList.contains("on"));return}
+    const a=APPS.find(x=>x.k===b.dataset.ap);const on=!has(s,a);b.disabled=true;
+    try{await setApps(id,{[a.k]:on});LAST=id;render();toast((on?"Acceso a ":"Quitado de ")+a.name+": "+String(s.name).split(" ")[0])}
+    catch(e){b.disabled=false;toast("No se pudo guardar. Intenta de nuevo.")}});
+  m.querySelectorAll("[data-ok]").forEach(b=>b.onclick=async()=>{const id=b.dataset.ok;const card=$("r-"+id);
+    const want={};card.querySelectorAll(".ap").forEach(c=>want[c.dataset.ap]=c.classList.contains("on"));
+    if(!Object.values(want).some(Boolean)){toast("Elige al menos una app.");return}
+    b.disabled=true;try{await setApps(id,want);LAST=id;FILTER="all";render();toast("Aprobado ✓");const el=$("p-"+id);if(el)el.scrollIntoView({behavior:"smooth",block:"center"})}
+    catch(e){b.disabled=false;toast("No se pudo guardar. Intenta de nuevo.")}});
+  m.querySelectorAll("[data-adm]").forEach(b=>b.onclick=async()=>{const id=b.dataset.adm,s=STAFF.find(x=>x.id===id);if(!s)return;const on=!s.admin;
+    if(!confirm(on?`¿Hacer administrador a ${s.name}? Podrá entrar a Accesos, aprobar solicitudes y dar o quitar apps a todo el equipo. También queda con Servicio Pro.`:`¿Quitarle el rol de administrador a ${s.name}?`))return;
+    try{const r=doc(db,"staff",id);const d=await getDoc(r);const nd=Object.assign({},d.data(),{admin:on});if(on){nd.active=true;nd.pending=false;await setDoc(doc(db,"team",id),{inactive:false},{merge:true})}
+      await setDoc(r,nd);Object.assign(s,nd);LAST=id;render();toast(on?"Ahora es administrador ✓":"Ya no es administrador")}catch(e){toast("No se pudo guardar.")}});
+  m.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{const id=b.dataset.del,s=STAFF.find(x=>x.id===id);if(!s)return;
+    if(!confirm(`¿Eliminar a ${s.name} (${s.user||""})?\n\nPierde el acceso a las 3 apps y sale de la lista. Esto no se puede deshacer.`))return;
+    b.disabled=true;try{await setDoc(doc(db,"team",id),{inactive:true},{merge:true}).catch(()=>{});await deleteDoc(doc(db,"staff",id));STAFF=STAFF.filter(x=>x.id!==id);render();toast(s.name+" eliminado")}
+    catch(e){b.disabled=false;toast("No se pudo eliminar. Intenta de nuevo.")}});
+  m.querySelectorAll("[data-no]").forEach(b=>b.onclick=async()=>{if(!confirm("¿Rechazar esta solicitud?"))return;const id=b.dataset.no;
+    try{const r=doc(db,"staff",id);const s=await getDoc(r);await setDoc(r,Object.assign({},s.data(),{pending:false,active:false}));const x=STAFF.find(y=>y.id===id);if(x){x.pending=false;x.active=false}render();toast("Solicitud rechazada")}
+    catch(e){toast("No se pudo guardar.")}});
+  // crear usuario
+  const nn=$("nn"),nu=$("nu");let touched=false;nu.oninput=()=>{touched=true};nn.oninput=()=>{if(!touched)nu.value=slug(nn.value)};
+  m.querySelectorAll("[data-na]").forEach(b=>b.onclick=()=>{b.classList.toggle("on");b.setAttribute("aria-pressed",b.classList.contains("on"))});
+  $("nf").onsubmit=async ev=>{ev.preventDefault();const e=$("ne");
+    const s={name:nn.value.trim(),role:$("nc").value,user:nu.value.trim().toLowerCase(),pass:$("np").value.trim()};
+    const want={};m.querySelectorAll("[data-na]").forEach(c=>want[c.dataset.na]=c.classList.contains("on"));
+    if(!Object.values(want).some(Boolean)){e.textContent="Elige al menos una app.";return}
+    if(s.pass.length<6){e.textContent="La clave debe tener mínimo 6 caracteres.";return}
+    e.style.color="var(--mute)";e.textContent="Creando…";
+    const sec=initializeApp(CONFIG,"alta-"+Date.now());const a2=getAuth(sec);
+    try{const cr=await createUserWithEmailAndPassword(a2,toEmail(s.user),s.pass);
+      await setDoc(doc(db,"staff",cr.user.uid),Object.assign({},s,{active:false,created:new Date().toISOString()}));
+      await signOut(a2);STAFF.push(Object.assign({id:cr.user.uid},s,{active:false}));
+      await setApps(cr.user.uid,want);LAST=cr.user.uid;FILTER="all";Q="";render();toast("Usuario creado. Envíale los accesos por WhatsApp.");
+      const el=$("p-"+cr.user.uid);if(el)el.scrollIntoView({behavior:"smooth",block:"center"})}
+    catch(err){const c=err&&err.code||"";e.style.color="#FF7EA6";e.textContent=c.includes("email-already")?"Ese usuario ya existe. Búscalo en la lista y dale las apps.":c.includes("weak-password")?"La clave es muy corta.":"No se pudo crear: "+(err.message||c)}
+    finally{try{await deleteApp(sec)}catch(_){}}};
+  // claves
+  $("kSave").onclick=async()=>{const e=$("kE");e.style.color="var(--mute)";e.textContent="Revisando…";
+    try{for(const a of APPS.filter(x=>x.flag)){const v=$("k-"+a.k).value.trim();if(v)await checkKey(a,v)}
+      await backfillKeys();render();toast("Claves guardadas ✓")}
+    catch(err){e.style.color="#FF7EA6";e.textContent=err.message||"No se pudo."}};
+}
+
+// a quien tenga Emplatado/Barra sin la clave guardada, se la pone
+async function backfillKeys(){for(const a of APPS.filter(x=>x.flag)){const k=getKey(a);if(!k)continue;
+  for(const s of STAFF){if(s[a.flag]===true&&s[a.key]!==k){try{const r=doc(db,"staff",s.id);const d=await getDoc(r);await setDoc(r,Object.assign({},d.data(),{[a.key]:k}));s[a.key]=k}catch(_){}}}}}
+
+/* ---- avisos ---- */
+const alertsOn=()=>("Notification" in window)&&Notification.permission==="granted";
+function paintAlert(){const b=$("alertB");b.textContent=alertsOn()?"🔔 Activos":"🔔 Avisos";b.style.opacity=alertsOn()?".7":"1"}
+$("alertB").onclick=async()=>{if(!("Notification" in window)){toast("Este celular no permite avisos desde el navegador. Instala la app en la pantalla de inicio.");return}
+  const p=await Notification.requestPermission();paintAlert();toast(p==="granted"?"Listo: te aviso cuando alguien pida acceso (con la app abierta o en segundo plano).":"No diste permiso para los avisos.")};
+function notify(list){
+  const names=list.map(s=>s.name).join(", ");
+  toast("🔔 Nueva solicitud: "+names);
+  try{if(navigator.setAppBadge){const n=STAFF.filter(isReq).length;n?navigator.setAppBadge(n):navigator.clearAppBadge()}}catch(_){}
+  if(alertsOn()&&navigator.serviceWorker)navigator.serviceWorker.ready.then(r=>r.showNotification("🔔 Nueva solicitud de acceso",{body:names+" quiere entrar. Toca para aprobar.",icon:"../icon-192.png",badge:"../icon-192.png",tag:"lh-pend",renotify:true})).catch(()=>{});
+}
+
+let started=false;
+async function start(user){
+  if(started)return;started=true;
+  gate(`<p class="mut">Cargando…</p>`);
+  let ok=ADMIN_EMAILS.includes(String(user.email||"").toLowerCase());
+  ME=user.uid;
+  if(!ok){try{const s=await getDoc(doc(db,"staff",user.uid));const d=s.exists()?s.data():null;ok=!!(d&&d.admin===true&&d.active===true)}catch(e){}}
+  if(!ok){location.replace("../");return}
+  await loadVis();
+  $("gate").hidden=true;$("app").hidden=false;paintAlert();
+  onSnapshot(collection(db,"staff"),sn=>{
+    STAFF=sn.docs.map(d=>Object.assign({id:d.id},d.data())).filter(x=>x.name);
+    const req=STAFF.filter(isReq);
+    if(seen){const nuevos=req.filter(s=>!seen.has(s.id));if(nuevos.length)notify(nuevos)}
+    seen=new Set(req.map(s=>s.id));
+    try{if(navigator.setAppBadge){req.length?navigator.setAppBadge(req.length):navigator.clearAppBadge()}}catch(_){}
+    const ae=document.activeElement;if(ae&&ae.closest&&ae.closest("#nf,.keys")){return}
+    render();
+  },err=>{toast("No pude leer el equipo: "+(err.code||""))});
+  backfillKeys();
+}
+onAuthStateChanged(auth,u=>{if(u)start(u);else location.replace("../")});
+</script>
+<script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("../sw.js",{scope:"../"}).catch(()=>{}))</script>
+</body></html>
