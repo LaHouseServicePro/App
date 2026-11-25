@@ -151,6 +151,7 @@ function render(){
     .sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));
   const keysOk=APPS.filter(a=>a.flag).every(a=>getKey(a));
   $("main").innerHTML=`
+  <div class="row" style="margin-bottom:6px">${APPS.map(x=>`<a class="btn sm" href="${x.url}" style="flex:1">${x.k==="sp"?"⭐":x.k==="emp"?"🍽️":"🍹"} ${x.name}</a>`).join("")}</div>
   ${keysOk?"":`<div class="card" style="border-color:var(--yel)"><b>⚠️ Falta una clave de contenido.</b><p class="mut sm" style="margin-top:4px">Sin ella, las personas a las que les des Emplatado o Barra no podrán ver las recetas. Escríbela abajo, en «Claves de contenido».</p></div>`}
   <h2>Solicitudes${req.length?`<span class="badge">${req.length}</span>`:""}</h2>
   ${req.length?req.map(s=>`<div class="card req" id="r-${esc(s.id)}"><div class="h"><div><b>${esc(s.name)}</b><div class="mut sm">${esc(roleName(s.role))} · usuario <b style="color:#fff">${esc(s.user||"")}</b> · ${fmtWhen(s.created)}</div>
