@@ -24,6 +24,7 @@ label{display:block;text-align:left;font-weight:700;font-size:14px;margin:12px 0
 .app .ar{margin-left:auto;font-size:22px;color:var(--mute)}
 .err{color:#FF7EA6;font-weight:700;min-height:22px;margin-top:10px}
 .sep{border-top:1px solid var(--line);margin:24px 0 8px;padding-top:16px}
+.how{margin-top:22px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}.how summary{cursor:pointer;font-weight:800;color:var(--yel)}.hw{margin-top:10px}.hw b{color:#fff}.hw p{margin:4px 0 12px;font-size:14px}
 .lnk{background:none;border:0;color:var(--cy);font-weight:700;margin-top:14px;cursor:pointer;text-decoration:underline}
 </style></head><body><div class="w" id="v"><p>Cargando…</p></div>
 <script type="module">
@@ -51,6 +52,13 @@ let pendOff=null;
 const show=h=>{$("v").innerHTML=head+h};
 let busy=false,started=false,off=null;
 
+const howto=(open)=>`<details class="how" ${open?"open":""}><summary>📲 Cómo crear tu cuenta e instalar la app</summary>
+  <div class="hw"><b>1. Crea tu cuenta</b><p>Toca <b>Crear mi cuenta</b>, escribe tu nombre, cargo, un usuario y una clave. Tu líder recibe la solicitud y te da acceso.</p>
+  <b>2. Instala la app en tu celular</b>
+  <p><u>Android (Chrome):</u> abre este link en <b>Chrome</b> (no desde WhatsApp) → toca los <b>3 puntos ⋮</b> → <b>Instalar app</b> o <b>Agregar a la pantalla principal</b>.</p>
+  <p><u>iPhone (Safari):</u> abre este link en <b>Safari</b> → toca <b>Compartir</b> (cuadro con flecha ↑) → <b>Agregar a inicio</b>.</p>
+  <p>Si te llegó por WhatsApp: toca los 3 puntos ⋮ y elige <b>Abrir en Chrome</b> (o en Safari) primero.</p>
+  <b>3. Entra siempre desde el ícono «La House»</b><p>Ahí verás tus apps y <b>Aprende la carta</b>. Tu usuario y clave son personales.</p></div></details>`;
 function signup(msg){
   show(`<p>Crea tu cuenta. Tu líder la aprueba y te da acceso a tus apps.</p><form id="f">
   <label for="n">Nombre y apellido</label><input class="tx" id="n" autocomplete="name" placeholder="Ej: Ana López">
@@ -59,7 +67,7 @@ function signup(msg){
   <label for="p">Clave (mínimo 6 caracteres)</label><input class="tx" id="p" type="password" autocomplete="new-password">
   <label for="p2">Repite la clave</label><input class="tx" id="p2" type="password" autocomplete="new-password">
   <button class="btn pk" type="submit" id="go">Crear mi cuenta</button><div class="err" id="e">${esc(msg||"")}</div></form>
-  <div class="sep"><b>¿Ya tienes cuenta?</b></div><button class="btn" id="toL">Entrar</button>`);
+  <div class="sep"><b>¿Ya tienes cuenta?</b></div><button class="btn" id="toL">Entrar</button>${howto(false)}`);
   const n=$("n"),u=$("u");let t=false;u.oninput=()=>{t=true};n.oninput=()=>{if(!t)u.value=slugU(n.value)};
   $("toL").onclick=()=>login();
   $("f").onsubmit=async ev=>{ev.preventDefault();const e=$("e");
@@ -78,7 +86,7 @@ function login(msg){
   show(`<p>Entra con tu usuario y clave.</p><form id="f"><label for="u">Usuario</label><input class="tx" id="u" autocomplete="username" autocapitalize="none" placeholder="Ej: ana.lopez">
   <label for="p">Clave</label><input class="tx" id="p" type="password" autocomplete="current-password">
   <button class="btn pk" type="submit" id="go">Entrar</button><div class="err" id="e">${esc(msg||"")}</div></form>
-  <button class="lnk" id="toS">No tengo cuenta: crear una</button>`);
+  <button class="lnk" id="toS">No tengo cuenta: crear una</button>${howto(false)}`);
   $("toS").onclick=()=>signup();
   $("f").onsubmit=async ev=>{ev.preventDefault();const e=$("e");e.textContent="Entrando…";$("go").disabled=true;
     try{await signInWithEmailAndPassword(auth,toEmail($("u").value),$("p").value)}
@@ -107,7 +115,7 @@ function paint(user,s){
     const txt=`Hola, soy ${s.name} (${roleName(s.role)}). Ya creé mi cuenta en el Equipo La House con el usuario ${s.user||""}. ¿Me apruebas el acceso? 🙏`;
     show(`<div style="font-size:52px;margin-top:10px">⏳</div><h2>¡Ya casi!</h2><p>Hola <b style="color:#fff">${esc(s.name)}</b>, tu cuenta quedó creada. Tu líder ya recibió tu solicitud. Apenas te apruebe, aquí te aparecen tus apps.</p>
     <p style="font-size:13px">Tu usuario: <b style="color:#fff">${esc(s.user||"")}</b></p>
-    <a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(txt)}">📲 Avisar al líder por WhatsApp</a><p style="margin-top:22px">Mientras tanto, estudia la carta:</p>${carta}${outB}`);
+    <a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(txt)}">📲 Avisar al líder por WhatsApp</a><p style="margin-top:22px">Mientras tanto, estudia la carta:</p>${carta}${howto(false)}${outB}`);
   }else{
     const txt=`Hola, soy ${s.name||""}. Quiero acceso a las apps de La House con mi usuario ${s.user||""}. 🙏`;
     show(`<div style="font-size:52px;margin-top:10px">🔒</div><h2>Sin apps por ahora</h2><p>Tu usuario no tiene acceso a ninguna app. Si crees que es un error, habla con tu líder.</p>

@@ -135,7 +135,7 @@ function waAccess(s){
   const cred=s.pass?`\n\nUsuario: *${s.user}*\nClave: *${s.pass}*`:`\n\nEntra con tu usuario *${s.user}* y tu clave.`;
   return "https://wa.me/?text="+encodeURIComponent(`Hola ${String(s.name||"").split(" ")[0]} 👋 Ya tienes acceso a las apps de La House:\n\n${links}${cred}\n\nGuárdalas en tu pantalla de inicio. Son personales, no las compartas.`);
 }
-const waJoin=()=>"https://wa.me/?text="+encodeURIComponent(`Hola 👋 Este es el link del *Equipo La House*:\n\n${JOIN}\n\nEntra, toca *Crear mi cuenta* y te apruebo el acceso a tus apps.`);
+const waJoin=()=>"https://wa.me/?text="+encodeURIComponent(`Hola 👋 Este es el link del *Equipo La House*:\n\n${JOIN}\n\nAsí lo haces:\n1️⃣ Ábrelo en *Chrome* (Android) o *Safari* (iPhone). Si lo abres desde WhatsApp, toca ⋮ y «Abrir en Chrome».\n2️⃣ Toca *Crear mi cuenta* y llena tus datos.\n3️⃣ Instálala: Android → ⋮ → *Instalar app*. iPhone → Compartir ↑ → *Agregar a inicio*.\n4️⃣ Cuando te apruebe, entra desde el ícono *La House* y verás tus apps.`);
 const waInvite=a=>"https://wa.me/?text="+encodeURIComponent(`Hola 👋 Este es el link de *${a.name} - La House*:\n\n${a.url}\n\nEntra, toca *Crear mi cuenta* y yo te apruebo. Si ya tienes usuario de otra app de La House, entra con ese mismo.`);
 
 function visLine(s){const out=[];for(const a of APPS){if(!has(s,a))continue;const V=VIS[a.k];if(!V)continue;const v=V[s.id];
