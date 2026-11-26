@@ -205,7 +205,7 @@ function render(){
 function progHTML(){
   const L=STAFF.filter(s=>!isReq(s)).map(s=>({s,p:PROGS[s.id]})).sort((a,b)=>((b.p&&b.p.done)||0)-((a.p&&a.p.done)||0)||String((b.p&&b.p.last)||"").localeCompare(String((a.p&&a.p.last)||""))||String(a.s.name).localeCompare(String(b.s.name)));
   if(!L.length)return `<p class="mut">Todavía no hay equipo.</p>`;
-  const tema=k=>/(^|-)coc-/.test(k)?"🍹":/(^|-)food-/.test(k)?"🍽️":"🥃";
+  const tema=k=>/(^|-)coc-/.test(k)?"🍹":/(^|-)food-/.test(k)?"🍽️":/(^|-)sal-/.test(k)?"🥫":"🥃";
   return `<p class="mut sm" style="margin-bottom:8px">Se actualiza solo mientras estudian. Toca una persona para ver sus módulos.</p>`+L.map(({s,p})=>{
     const tot=(p&&p.total)||26,done=(p&&p.done)||0,pc=Math.round(done/tot*100);const mods=(p&&p.mods)||{};const ks=Object.keys(mods);
     const ex=ks.filter(k=>k.endsWith("-examen")&&mods[k].done).length;
